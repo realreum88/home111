@@ -545,3 +545,8 @@ form .button { justify-self: start; }
   .case-links, .post-grid { grid-template-columns: 1fr; }
   .case-link h3 { font-size: 24px; }
 }
+.review-scores { display: grid; gap: 12px; margin: 18px 0 16px; }
+.review-score-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 16px; border: 3px solid var(--navy); border-radius: 16px; background: var(--cream); }
+.review-score-row .rs-name { font-weight: 900; font-size: 18px; margin-right: auto; }
+.review-score-row b { font-size: 30px; font-weight: 900; line-height: 1; }
+.review-score-row .rs-count { font-weight: 700; color: var(--sub); font-size: 16px; }

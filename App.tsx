@@ -381,22 +381,32 @@ function Home() {
         <section className="review-grid" id="reviews">
           <div className="panel review-card">
             <span className="badge">REAL REVIEW</span>
-            <div className="review-score">
-              <span className="stars">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} size={30} fill="#FFC93C" strokeWidth={2.4} />
-                ))}
-              </span>
-              <b>5.0</b>
+            <div className="review-scores">
+              <div className="review-score-row">
+                <NaverBadge />
+                <span className="rs-name">네이버 리뷰</span>
+                <Star size={24} fill="#FFC93C" strokeWidth={2.4} />
+                <b>{STORE.reviews.naver.score}</b>
+                <span className="rs-count">리뷰 {STORE.reviews.naver.count}개</span>
+              </div>
+              <div className="review-score-row">
+                <DaangnBadge />
+                <span className="rs-name">당근 이웃 후기</span>
+                <Star size={24} fill="#FFC93C" strokeWidth={2.4} />
+                <b>{STORE.reviews.daangn.score}</b>
+                <span className="rs-count">후기 {STORE.reviews.daangn.count}개</span>
+              </div>
             </div>
-            <h3>당근 이웃 후기 15개, 모두 별 다섯 개</h3>
-            <p>배터리 교체, 아이패드 액정·프레임 수리 등 실제 이웃들의 후기를 확인해보세요.</p>
+            <h3>
+              네이버 리뷰 {STORE.reviews.naver.count}개, 평점 {STORE.reviews.naver.score}
+            </h3>
+            <p>당근 이웃 후기 {STORE.reviews.daangn.count}개도 모두 별 다섯 개예요. 배터리 교체, 아이패드 액정·프레임 수리 등 실제 고객 후기를 확인해보세요.</p>
             <div className="review-links">
-              <ExtLink href={STORE.daangn} className="pill-link">
-                <DaangnBadge /> 당근 후기 보기 <ExternalLink size={16} />
-              </ExtLink>
               <ExtLink href={STORE.naver} className="pill-link">
                 <NaverBadge /> 네이버 리뷰 보기 <ExternalLink size={16} />
+              </ExtLink>
+              <ExtLink href={STORE.daangn} className="pill-link">
+                <DaangnBadge /> 당근 후기 보기 <ExternalLink size={16} />
               </ExtLink>
             </div>
           </div>

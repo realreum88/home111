@@ -10,6 +10,11 @@ export const STORE = {
   hoursNote: '일요일·공휴일은 예약제로 운영해요',
   naver: 'https://naver.me/56aSq05w',
   blog: 'https://blog.naver.com/safefixx',
+  // 후기 수치 (2026-10-16 기준). 바뀌면 여기만 고치면 됩니다.
+  reviews: {
+    naver: { score: '4.97', count: '1,693' },
+    daangn: { score: '5.0', count: '15' },
+  },
   clip: 'https://naver.me/GRDqrjKd',
   daangn: 'https://www.daangn.com/kr/local-profile/t641gnstimfr/?referrer=share',
   coupon: '첫 방문 10,000원 할인 + 아이패드 필름 증정',
