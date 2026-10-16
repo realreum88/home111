@@ -11,8 +11,8 @@ const content = {
   repair: {
     label: 'REPAIR STUDIO',
     name: '수리하기',
-    title: '고장 난 기기도,',
-    accent: '다시 씩씩하게!',
+    title: '고장 난 기기,',
+    accent: '리퍼 대신 원래대로\n다시 고칠 수 있어요.',
     desc: '깨진 화면부터 충전 문제까지, 대표가 직접 하나씩 살펴볼게요.',
     badge: '오늘도 수리 준비 완료!',
     section: '어디가 불편한가요?',
@@ -106,7 +106,7 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
             <h1>
               {device ? device + '도,' : c.title}
               <br />
-              <em>{c.accent}</em>
+              <em>{c.accent.split('\n').map((l, k) => <React.Fragment key={k}>{k > 0 && <br />}{l}</React.Fragment>)}</em>
             </h1>
             <p>{c.desc}</p>
             <div className="hero-actions">

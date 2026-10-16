@@ -517,3 +517,7 @@ form .button { justify-self: start; }
 }
 
 .nowrap { white-space: nowrap; }
+#reviews { scroll-margin-top: 150px; }
+.delivery-steps { display: grid; gap: 16px; margin-bottom: 16px; }
+.tip-box > p { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.7; }
+.care-copy h1 em { font-size: clamp(32px, 4.2vw, 60px); display: inline-block; margin-top: 6px; }

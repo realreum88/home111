@@ -101,9 +101,9 @@ function Header() {
         <Brand />
         <nav className={open ? 'nav-links is-open' : 'nav-links'} aria-label="주 메뉴">
           <Link to="/services">수리하기</Link>
-          <Link to="/services/battery">배터리 교체</Link>
-          <Link to="/services/data">데이터 상담</Link>
-          <Link to="/locations">매장 안내</Link>
+          <Link to="/delivery">택배수리</Link>
+          <Link to="/reviews">수리후기</Link>
+          <Link to="/locations">매장안내</Link>
           <a href={STORE.tel} className="nav-call">
             <Phone size={18} /> {STORE.phone}
           </a>
@@ -129,6 +129,8 @@ function Footer() {
         </div>
         <div className="footer-links">
           <Link to="/services">수리 안내</Link>
+          <Link to="/delivery">택배수리</Link>
+          <Link to="/reviews">수리후기</Link>
           <Link to="/locations">매장 안내</Link>
           <Link to="/faq">자주 묻는 질문</Link>
           <Link to="/contact">상담 준비</Link>
@@ -375,7 +377,7 @@ function Home() {
           <LocationCard />
         </section>
 
-        <section className="review-grid">
+        <section className="review-grid" id="reviews">
           <div className="panel review-card">
             <span className="badge">REAL REVIEW</span>
             <div className="review-score">
@@ -562,6 +564,50 @@ function Locations() {
   );
 }
 
+function Reviews() {
+  useEffect(() => {
+    const t = setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' }), 60);
+    return () => clearTimeout(t);
+  }, []);
+  return <Home />;
+}
+
+function Delivery() {
+  const steps: [string, string][] = [
+    ['먼저 연락 주세요', '전화나 네이버 톡톡으로 기기 모델과 증상을 알려주세요.'],
+    ['안내받은 대로 보내주세요', '포장 방법과 접수 방법을 알려드려요. 안내에 맞춰 택배나 퀵으로 보내주세요.'],
+    ['점검 후 비용 안내', '기기 상태를 확인한 뒤 비용과 소요 시간을 안내하고, 동의하신 경우에만 수리해요.'],
+  ];
+  return (
+    <>
+      <PageHead badge="DELIVERY REPAIR" title={<>멀리 계셔도 <em>맡기실 수 있어요.</em></>} lead="전국 택배 수리와 퀵 접수가 가능해요." kind="phone" pose="wave" />
+      <div className="shell inner-page narrow-page">
+        <div className="delivery-steps">
+          {steps.map(([t, d], i) => (
+            <div key={t} className="panel tip-box">
+              <h3>
+                STEP {i + 1}. {t}
+              </h3>
+              <p>{d}</p>
+            </div>
+          ))}
+        </div>
+        <div className="panel tip-box">
+          <h3>📦 보내실 곳</h3>
+          <p>
+            {STORE.address} {STORE.addressDetail}
+            <br />
+            {STORE.name} ({STORE.phone})
+          </p>
+        </div>
+        <a className="button" href={STORE.tel}>
+          <Phone size={20} /> 택배 접수 전화하기
+        </a>
+      </div>
+    </>
+  );
+}
+
 function FAQ() {
   return (
     <>
@@ -688,6 +734,8 @@ function Shell() {
           <Route path="/services" element={<Services />} />
           <Route path="/services/:serviceId" element={<Detail />} />
           <Route path="/locations" element={<Locations />} />
+          <Route path="/delivery" element={<Delivery />} />
+          <Route path="/reviews" element={<Reviews />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<Navigate to="/" replace />} />
