@@ -551,3 +551,14 @@ form .button { justify-self: start; }
 .review-score-row b { font-size: 30px; font-weight: 900; line-height: 1; }
 .review-score-row .rs-count { font-weight: 700; color: var(--sub); font-size: 16px; }
 .delivery-actions { display: flex; flex-wrap: wrap; gap: 18px; } @media (max-width: 560px) { .delivery-actions .button { width: 100%; } }
+.mark-badge.kakao { background: #fee500; color: #191919; }
+.floating-contact.kakao-float { bottom: 178px; background: #fee500; color: #191919; }
+.quick.q-kakao .q-ic { background: #fee500; color: #191919; }
+.quickbar { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 1180px) { .quickbar { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) {
+  .floating-contact.kakao-float { bottom: 150px; }
+  .quickbar { grid-template-columns: 1fr; }
+}
+.quickbar .quick b { font-size: 19px; white-space: nowrap; }
+@media (max-width: 1180px) { .quickbar .quick b { font-size: 22px; } }

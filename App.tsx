@@ -78,6 +78,16 @@ function ExtLink({ href, className, children, label }: { href: string; className
 function NaverBadge() {
   return <span className="mark-badge naver">N</span>;
 }
+function KakaoBadge() {
+  return <span className="mark-badge kakao">톡</span>;
+}
+function KakaoBubble({ size = 26 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.8 5.3 4.6 6.7L5.6 21.5c-.1.4.3.7.6.5l4.4-2.9c.5.1.9.1 1.4.1 5.5 0 10-3.6 10-8.1S17.5 3 12 3z" fill="currentColor" />
+    </svg>
+  );
+}
 function DaangnBadge() {
   return <span className="mark-badge daangn">당근</span>;
 }
@@ -96,6 +106,7 @@ function Header() {
           <span className="utility-links">
             <ExtLink href={STORE.naver}>네이버 플레이스</ExtLink>
             <ExtLink href={STORE.daangn}>당근 매장</ExtLink>
+            <ExtLink href={STORE.kakao}>카카오 채널</ExtLink>
             <Link to="/faq">자주 묻는 질문</Link>
           </span>
         </div>
@@ -137,6 +148,7 @@ function Footer() {
           <Link to="/locations">매장 안내</Link>
           <Link to="/faq">자주 묻는 질문</Link>
           <Link to="/contact">상담 준비</Link>
+          <ExtLink href={STORE.kakao}>카카오톡 채널</ExtLink>
         </div>
       </div>
       <div className="shell footer-info">
@@ -326,6 +338,15 @@ function Home() {
           <span>
             <small>후기 · 쿠폰 · 단골 맺기</small>
             <b>당근 매장 보기</b>
+          </span>
+        </ExtLink>
+        <ExtLink href={STORE.kakao} className="quick q-kakao">
+          <span className="q-ic">
+            <KakaoBubble size={30} />
+          </span>
+          <span>
+            <small>1:1 상담 · 채널 추가</small>
+            <b>카카오톡 채널</b>
           </span>
         </ExtLink>
       </div>
@@ -857,6 +878,9 @@ function Shell() {
       </a>
       <ExtLink href={STORE.naver} className="floating-contact naver-float" label="네이버 톡톡 상담">
         <MessageCircle size={26} />
+      </ExtLink>
+      <ExtLink href={STORE.kakaoChat} className="floating-contact kakao-float" label="카카오톡 채널 상담">
+        <KakaoBubble />
       </ExtLink>
     </>
   );

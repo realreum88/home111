@@ -10,6 +10,8 @@ export const STORE = {
   hoursNote: '일요일·공휴일은 예약제로 운영해요',
   naver: 'https://naver.me/56aSq05w',
   booking: 'https://naver.me/xOIEsOet', // 네이버 플레이스 예약
+  kakao: 'https://pf.kakao.com/_mRxaYn', // 카카오톡 채널
+  kakaoChat: 'https://pf.kakao.com/_mRxaYn/chat', // 카카오톡 채널 1:1 채팅
   blog: 'https://blog.naver.com/safefixx',
   // 후기 수치 (2026-10-16 기준). 바뀌면 여기만 고치면 됩니다.
   reviews: {
