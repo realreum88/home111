@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Pause, Play, ShieldCheck, Phone } from 'lucide-react';
 import { Character, CharKind, Sparkle } from '../components/Characters';
 import { STORE } from '../store';
+import { DEVICES } from '../devices';
 
 type Kind = 'repair' | 'battery' | 'data';
 
@@ -64,7 +65,7 @@ const sceneChar: Record<Kind, CharKind> = { repair: 'phone', battery: 'battery',
 
 function GameScene({ kind, device }: { kind: Kind; device?: string }) {
   const [paused, setPaused] = useState(false);
-  const main: CharKind = device === '아이패드' ? 'tablet' : sceneChar[kind];
+  const main: CharKind = DEVICES.find((d) => d.name === device)?.kind ?? sceneChar[kind];
   return (
     <div className={'game-scene ' + (paused ? 'is-paused' : '')}>
       <div className="scene-sun" />
@@ -133,12 +134,7 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
 
           {kind === 'repair' ? (
             <div className="service-grid">
-              {[
-                { name: '아이폰', id: 'display', ck: 'phone' as CharKind, desc: '화면 · 뒷면 · 카메라', tone: 'blue' },
-                { name: '아이패드', id: 'ipad', ck: 'tablet' as CharKind, desc: '화면 · 충전단자 · 휨', tone: 'peach' },
-                { name: '배터리', id: 'battery', ck: 'battery' as CharKind, desc: '사용 시간 · 잔량', tone: 'yellow' },
-                { name: '데이터', id: 'data', ck: 'data' as CharKind, desc: '사진 · 기록 · 백업', tone: 'lilac' },
-              ].map(({ name, id, ck, desc, tone }, i) => (
+              {DEVICES.map(({ name, id, kind: ck, items, tone }, i) => (
                 <Link key={id} to={'/services/' + id} className={'service-card ' + tone + (device && name === device ? ' is-current' : '')}>
                   <span className="stage-tag">TYPE {i + 1}</span>
                   <div className="service-art">
@@ -146,7 +142,7 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
                   </div>
                   <div className="service-body">
                     <h3>{name}</h3>
-                    <p>{desc}</p>
+                    <p>{items.map((t, k) => <React.Fragment key={t}>{k > 0 && ' · '}<span className="nowrap">{t}</span></React.Fragment>)}</p>
                     <span className="go">
                       선택하기 <ArrowRight size={18} />
                     </span>

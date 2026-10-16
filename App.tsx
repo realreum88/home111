@@ -26,14 +26,10 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Character, CharKind, StoreArt, Sparkle } from './components/Characters';
+import { DEVICES, deviceById } from './devices';
 import { STORE } from './store';
 
-const services: { id: string; name: string; desc: string; kind: CharKind; tone: string; stage: string }[] = [
-  { id: 'display', name: '아이폰 수리', desc: '액정 · 뒷면 · 카메라 · 침수', kind: 'phone', tone: 'blue', stage: 'STAGE 1' },
-  { id: 'ipad', name: '아이패드 수리', desc: '액정 · 충전단자 · 휨 복원', kind: 'tablet', tone: 'peach', stage: 'STAGE 2' },
-  { id: 'battery', name: '배터리 교체', desc: '빨리 닳고, 꺼지고, 부풀 때', kind: 'battery', tone: 'yellow', stage: 'STAGE 3' },
-  { id: 'data', name: '데이터 상담', desc: '침수 · 전원 불량 · 사진 걱정', kind: 'data', tone: 'lilac', stage: 'STAGE 4' },
-];
+
 
 const perks = [
   { Icon: Wrench, t: '대표가 직접 수리', d: '상담부터 수리까지 한 사람이 책임져요' },
@@ -180,15 +176,15 @@ function SectionTitle({ badge, title, to, label = '더보기' }: { badge?: strin
 function ServiceCards() {
   return (
     <div className="service-grid">
-      {services.map(({ id, name, desc, kind, tone, stage }, i) => (
+      {DEVICES.map(({ id, name, items, kind, tone }, i) => (
         <Link to={'/services/' + id} className={'service-card ' + tone} key={id}>
-          <span className="stage-tag">{stage}</span>
+          <span className="stage-tag">STAGE {i + 1}</span>
           <div className="service-art">
             <Character kind={kind} pose={i % 2 ? 'point' : 'wave'} mood={i === 1 ? 'wink' : 'happy'} />
           </div>
           <div className="service-body">
             <h3>{name}</h3>
-            <p>{desc}</p>
+            <p>{items.map((t, k) => <React.Fragment key={t}>{k > 0 && ' · '}<span className="nowrap">{t}</span></React.Fragment>)}</p>
             <span className="go">
               선택하기 <ArrowRight size={18} />
             </span>
@@ -523,7 +519,7 @@ function Detail() {
   return (
     <CarePage
       kind={serviceId === 'battery' ? 'battery' : serviceId === 'data' ? 'data' : 'repair'}
-      device={serviceId === 'ipad' ? '아이패드' : serviceId === 'display' ? '아이폰' : undefined}
+      device={deviceById(serviceId)?.name}
     />
   );
 }

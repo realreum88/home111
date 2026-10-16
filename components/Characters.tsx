@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type CharKind = 'phone' | 'tablet' | 'battery' | 'data';
+export type CharKind = 'phone' | 'tablet' | 'battery' | 'data' | 'laptop' | 'watch';
 export type Pose = 'wave' | 'point' | 'cheer' | 'hold';
 export type Mood = 'happy' | 'wink' | 'wow';
 
@@ -71,6 +71,37 @@ function bodyFor(kind: CharKind): BodyDef {
             <path d="M40 98 Q40 84 54 84 H90 L104 98 H166 Q180 98 180 112 V194 Q180 208 166 208 H54 Q40 208 40 194 Z" fill="#B9A6FF" stroke={NAVY} strokeWidth={SW} strokeLinejoin="round" />
             <rect x="40" y="114" width="140" height="94" rx="16" fill="#D9CEFF" stroke={NAVY} strokeWidth={SW} />
             <path d="M54 128 L66 122" stroke="#fff" strokeWidth={5} strokeLinecap="round" />
+          </>
+        ),
+      };
+    case 'laptop':
+      return {
+        face: [110, 90],
+        shoulders: [34, 186, 168],
+        body: (
+          <>
+            <rect x="40" y="26" width="140" height="122" rx="16" fill="#DCE3EC" stroke={NAVY} strokeWidth={SW} />
+            <rect x="53" y="39" width="114" height="94" rx="9" fill="#F7FAFF" stroke={NAVY} strokeWidth={4} />
+            <circle cx="110" cy="33" r="2.5" fill={NAVY} />
+            <path d="M24 156 H196 L186 198 Q184 208 172 208 H48 Q36 208 34 198 Z" fill="#C3CDDB" stroke={NAVY} strokeWidth={SW} strokeLinejoin="round" />
+            <path d="M50 170 H170 M54 182 H166" stroke={NAVY} strokeWidth={3.5} strokeLinecap="round" strokeDasharray="8 6" />
+            <rect x="90" y="190" width="40" height="10" rx="4" fill="#E8EDF4" stroke={NAVY} strokeWidth={3} />
+            <path d="M64 52 L78 44" stroke="#fff" strokeWidth={5} strokeLinecap="round" />
+          </>
+        ),
+      };
+    case 'watch':
+      return {
+        face: [110, 114],
+        shoulders: [50, 170, 142],
+        body: (
+          <>
+            <rect x="80" y="8" width="60" height="46" rx="12" fill="#FD6731" stroke={NAVY} strokeWidth={5} />
+            <rect x="80" y="170" width="60" height="34" rx="12" fill="#FD6731" stroke={NAVY} strokeWidth={5} />
+            <rect x="166" y="94" width="14" height="28" rx="5" fill="#FFC93C" stroke={NAVY} strokeWidth={4} />
+            <rect x="50" y="44" width="120" height="140" rx="38" fill="#9FE3C8" stroke={NAVY} strokeWidth={SW} />
+            <rect x="64" y="58" width="92" height="112" rx="26" fill="#F2FFF9" stroke={NAVY} strokeWidth={4} />
+            <path d="M76 72 L88 64" stroke="#fff" strokeWidth={5} strokeLinecap="round" />
           </>
         ),
       };
