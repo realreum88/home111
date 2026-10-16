@@ -550,3 +550,4 @@ form .button { justify-self: start; }
 .review-score-row .rs-name { font-weight: 900; font-size: 18px; margin-right: auto; }
 .review-score-row b { font-size: 30px; font-weight: 900; line-height: 1; }
 .review-score-row .rs-count { font-weight: 700; color: var(--sub); font-size: 16px; }
+.delivery-actions { display: flex; flex-wrap: wrap; gap: 18px; } @media (max-width: 560px) { .delivery-actions .button { width: 100%; } }

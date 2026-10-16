@@ -24,6 +24,7 @@ import {
   Truck,
   GraduationCap,
   ExternalLink,
+  CalendarCheck,
   Play,
 } from 'lucide-react';
 import { Character, CharKind, StoreArt, Sparkle } from './components/Characters';
@@ -701,9 +702,14 @@ function Delivery() {
             {STORE.name} ({STORE.phone})
           </p>
         </div>
-        <a className="button" href={STORE.tel}>
-          <Phone size={20} /> 택배 접수 전화하기
-        </a>
+        <div className="delivery-actions">
+          <a className="button" href={STORE.tel}>
+            <Phone size={20} /> 택배 접수 전화하기
+          </a>
+          <ExtLink href={STORE.booking} className="button">
+            <CalendarCheck size={20} /> 택배예약 접수하기
+          </ExtLink>
+        </div>
       </div>
     </>
   );
