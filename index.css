@@ -521,3 +521,4 @@ form .button { justify-self: start; }
 .delivery-steps { display: grid; gap: 16px; margin-bottom: 16px; }
 .tip-box > p { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.7; }
 .care-copy h1 em { font-size: clamp(32px, 4.2vw, 60px); display: inline-block; margin-top: 6px; }
+.tip-box ul { list-style: disc; } .tip-box li { line-height: 1.6; } .tip-box li + li { margin-top: 8px; }
