@@ -209,7 +209,7 @@ const slides: { tag: string; title: React.ReactNode; desc: string; cta: string; 
         <em>다시 미소를.</em>
       </>
     ),
-    desc: '아이폰부터 아이패드까지. 대표가 직접, 오늘 바로 고쳐드려요.',
+    desc: '아이폰부터 아이패드, 맥북, 애플워치까지 외주 없이 신속하게 고쳐드려요.',
     cta: '내 기기 수리 알아보기',
     to: '/services',
     chars: ['phone', 'tablet'],
