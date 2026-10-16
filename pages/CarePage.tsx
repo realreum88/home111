@@ -110,8 +110,8 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
             </h1>
             <p>{c.desc}</p>
             <div className="hero-actions">
-              <Link to={next} className="button">
-                ▶ {kind === 'repair' ? '수리 상담 준비하기' : kind === 'battery' ? '배터리 상담 준비하기' : '데이터 상담 준비하기'}
+              <Link to={kind === 'repair' ? '/cases' : next} className="button">
+                ▶ {kind === 'repair' ? '수리 작업 사례 보기' : kind === 'battery' ? '배터리 상담 준비하기' : '데이터 상담 준비하기'}
               </Link>
               <a href={STORE.tel} className="button ghost">
                 <Phone size={20} /> 전화하기

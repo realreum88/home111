@@ -9,6 +9,8 @@ export const STORE = {
   hours: '10:00 ~ 19:00',
   hoursNote: '일요일·공휴일은 예약제로 운영해요',
   naver: 'https://naver.me/56aSq05w',
+  blog: 'https://blog.naver.com/safefixx',
+  clip: 'https://naver.me/GRDqrjKd',
   daangn: 'https://www.daangn.com/kr/local-profile/t641gnstimfr/?referrer=share',
   coupon: '첫 방문 10,000원 할인 + 아이패드 필름 증정',
   couponUntil: '2026년 12월 31일까지',

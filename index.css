@@ -522,3 +522,26 @@ form .button { justify-self: start; }
 .tip-box > p { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.7; }
 .care-copy h1 em { font-size: clamp(32px, 4.2vw, 60px); display: inline-block; margin-top: 6px; }
 .tip-box ul { list-style: disc; } .tip-box li { line-height: 1.6; } .tip-box li + li { margin-top: 8px; }
+
+/* 수리 작업 사례 */
+.case-links { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 56px; }
+.case-link { display: flex; flex-direction: column; gap: 10px; padding: 32px; transition: transform 0.12s, box-shadow 0.12s; }
+.case-link:hover { transform: translate(-3px, -3px); box-shadow: 10px 10px 0 var(--orange); }
+.case-link.blog { background: var(--yel); }
+.case-link.clip { background: var(--peach); }
+.case-link .badge { align-self: flex-start; }
+.case-link h3 { font-size: 28px; font-weight: 900; margin: 6px 0 0; }
+.case-link p { margin: 0; color: var(--sub); font-weight: 600; }
+.case-link .go { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; color: var(--orange-d); font-weight: 900; }
+.post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px; }
+.post-card { display: flex; flex-direction: column; overflow: hidden; transition: transform 0.12s, box-shadow 0.12s; }
+.post-card:hover { transform: translate(-3px, -3px); box-shadow: 10px 10px 0 var(--orange); }
+.post-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-bottom: var(--line) solid var(--navy); background: var(--cream2); }
+.post-body { padding: 20px 22px 24px; }
+.post-body small { color: var(--sub); font-weight: 700; }
+.post-body h3 { font-size: 20px; font-weight: 900; line-height: 1.4; margin: 6px 0 8px; }
+.post-body p { margin: 0; color: var(--sub); font-size: 16px; font-weight: 500; }
+@media (max-width: 860px) {
+  .case-links, .post-grid { grid-template-columns: 1fr; }
+  .case-link h3 { font-size: 24px; }
+}

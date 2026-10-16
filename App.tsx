@@ -24,6 +24,7 @@ import {
   Truck,
   GraduationCap,
   ExternalLink,
+  Play,
 } from 'lucide-react';
 import { Character, CharKind, StoreArt, Sparkle } from './components/Characters';
 import { DEVICES, deviceById } from './devices';
@@ -564,6 +565,80 @@ function Locations() {
   );
 }
 
+type BlogPost = { title: string; link: string; date: string; image: string; summary: string };
+
+function Cases() {
+  const [posts, setPosts] = useState<BlogPost[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/blog')
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d) => alive && setPosts(Array.isArray(d.items) ? d.items : []))
+      .catch(() => alive && setPosts([]));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const fmt = (d: string) => {
+    const t = new Date(d);
+    return isNaN(t.getTime()) ? '' : `${t.getFullYear()}.${String(t.getMonth() + 1).padStart(2, '0')}.${String(t.getDate()).padStart(2, '0')}`;
+  };
+  return (
+    <>
+      <PageHead badge="REPAIR CASES" title={<>직접 고친 기록, <em>그대로 보여드려요.</em></>} lead="블로그와 클립에 수리 과정을 하나하나 남기고 있어요." kind="laptop" pose="point" />
+      <div className="shell inner-page">
+        <div className="case-links">
+          <ExtLink href={STORE.blog} className="panel case-link blog">
+            <span className="badge">BLOG</span>
+            <h3>블로그 수리 작업 사례</h3>
+            <p>분해부터 부품 교체, 마무리 점검까지 사진으로 기록했어요.</p>
+            <span className="go">
+              블로그 보러가기 <ExternalLink size={18} />
+            </span>
+          </ExtLink>
+          <ExtLink href={STORE.clip} className="panel case-link clip">
+            <span className="badge orange">CLIP</span>
+            <h3>클립 수리 영상</h3>
+            <p>짧은 영상으로 실제 작업 장면을 확인해보세요.</p>
+            <span className="go">
+              <Play size={18} /> 클립 영상 보러가기 <ExternalLink size={18} />
+            </span>
+          </ExtLink>
+        </div>
+
+        <div className="section-title">
+          <div>
+            <span className="badge">NEW POST</span>
+            <h2>최근 올린 작업 사례</h2>
+          </div>
+        </div>
+        {posts === null ? (
+          <p className="muted">블로그 글을 불러오는 중이에요…</p>
+        ) : posts.length === 0 ? (
+          <div className="panel tip-box">
+            <p>최신 글은 블로그에서 바로 확인해주세요.</p>
+          </div>
+        ) : (
+          <div className="post-grid">
+            {posts.map((p) => (
+              <React.Fragment key={p.link}>
+              <ExtLink href={p.link} className="panel post-card">
+                {p.image && <img src={p.image} alt="" loading="lazy" referrerPolicy="no-referrer" />}
+                <div className="post-body">
+                  <small>{fmt(p.date)}</small>
+                  <h3>{p.title}</h3>
+                  {p.summary && <p>{p.summary}</p>}
+                </div>
+              </ExtLink>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 function Reviews() {
   useEffect(() => {
     const t = setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' }), 60);
@@ -751,6 +826,7 @@ function Shell() {
           <Route path="/services/:serviceId" element={<Detail />} />
           <Route path="/locations" element={<Locations />} />
           <Route path="/delivery" element={<Delivery />} />
+          <Route path="/cases" element={<Cases />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
