@@ -562,3 +562,7 @@ form .button { justify-self: start; }
 }
 .quickbar .quick b { font-size: 19px; white-space: nowrap; }
 @media (max-width: 1180px) { .quickbar .quick b { font-size: 22px; } }
+.perk-feature { margin-bottom: 22px; background: var(--yel); align-items: center; padding: 28px 30px; }
+.perk-feature .perk-ic { flex-basis: 76px; height: 76px; background: #fff; }
+.perk-feature h3 { font-size: 26px; margin-top: 10px; }
+.perk-feature p { font-size: 18px; }

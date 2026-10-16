@@ -25,6 +25,7 @@ import {
   GraduationCap,
   ExternalLink,
   CalendarCheck,
+  Award,
   Play,
 } from 'lucide-react';
 import { Character, CharKind, StoreArt, Sparkle } from './components/Characters';
@@ -359,6 +360,16 @@ function Home() {
 
         <section className="perks-wrap">
           <SectionTitle badge="WHY SAFEFIX" title={<>세이프픽스를 <em>믿고 맡기는 이유</em></>} />
+          <div className="panel perk perk-feature">
+            <span className="perk-ic">
+              <Award size={36} strokeWidth={2.4} />
+            </span>
+            <div>
+              <span className="badge orange">2025 동작구</span>
+              <h3>동작구 ESG 민관협력 업체 선정</h3>
+              <p>2025년 동작구 ESG 민관협력 업체로 선정됐어요. 버리지 않고 고쳐 쓰는 수리로 동작구와 함께하고 있어요.</p>
+            </div>
+          </div>
           <div className="perk-grid">
             {perks.map(({ Icon, t, d }) => (
               <div className="panel perk" key={t}>
