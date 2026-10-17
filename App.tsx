@@ -436,7 +436,7 @@ function Home() {
             </h3>
             <p>당근 이웃 후기 {STORE.reviews.daangn.count}개도 모두 별 다섯 개예요. 배터리 교체, 아이패드 액정·프레임 수리 등 실제 고객 후기를 확인해보세요.</p>
             <div className="review-links">
-              <ExtLink href={STORE.naver} className="pill-link">
+              <ExtLink href={STORE.naverReview} className="pill-link">
                 <NaverBadge /> 네이버 리뷰 보기 <ExternalLink size={16} />
               </ExtLink>
               <ExtLink href={STORE.daangn} className="pill-link">

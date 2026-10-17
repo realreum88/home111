@@ -8,7 +8,10 @@ export const STORE = {
   tel: 'tel:050713305340',
   hours: '10:00 ~ 19:00',
   hoursNote: '일요일·공휴일은 예약제로 운영해요',
-  naver: 'https://naver.me/56aSq05w',
+  // naver.me 짧은 링크는 네이버 앱이 깔린 PC에서 앱을 열려다 멈추는 문제가 있어 웹 주소를 씁니다.
+  // 플레이스 고유 주소(m.place.naver.com/place/숫자)를 받으면 아래 두 줄을 그 주소로 바꾸세요.
+  naver: 'https://search.naver.com/search.naver?query=' + encodeURIComponent('세이프픽스 아이폰 아이패드수리 상도점'),
+  naverReview: 'https://search.naver.com/search.naver?query=' + encodeURIComponent('세이프픽스 아이폰 아이패드수리 상도점 리뷰'),
   booking: 'https://naver.me/xOIEsOet', // 네이버 플레이스 예약
   kakao: 'https://pf.kakao.com/_mRxaYn', // 카카오톡 채널
   kakaoChat: 'https://pf.kakao.com/_mRxaYn/chat', // 카카오톡 채널 1:1 채팅
