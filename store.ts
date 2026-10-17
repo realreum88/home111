@@ -18,7 +18,7 @@ export const STORE = {
     naver: { score: '4.97', count: '1,693' },
     daangn: { score: '5.0', count: '15' },
   },
-  clip: 'https://naver.me/GRDqrjKd',
+  clip: 'https://clip.naver.com/@safefixx',
   daangn: 'https://www.daangn.com/kr/local-profile/t641gnstimfr/?referrer=share',
   coupon: '첫 방문 10,000원 할인 + 아이패드 필름 증정',
   couponUntil: '2026년 12월 31일까지',
