@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://safefix.co.kr/sitemap.xml
+Sitemap: https://www.safefix.co.kr/sitemap.xml
