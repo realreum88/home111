@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://home111.vercel.app/sitemap.xml
+Sitemap: https://safefix.co.kr/sitemap.xml
