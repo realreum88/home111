@@ -84,3 +84,21 @@ const urls = Object.entries(seo.pages)
   .join('\n');
 writeFileSync(join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 console.log('prerendered', Object.keys(seo.pages).length, 'pages');
+
+// IndexNow: 배포(프로덕션 빌드)마다 Bing·네이버 등 IndexNow 참여 검색엔진에 바뀐 페이지를 바로 알립니다.
+// (구글은 IndexNow를 지원하지 않아 서치콘솔에서 따로 요청해야 합니다.)
+if (process.env.VERCEL_ENV === 'production') {
+  const key = readFileSync(join(root, '.indexnow-key'), 'utf8').trim();
+  const host = new URL(seo.site).host;
+  const urlList = Object.entries(seo.pages).filter(([, p]) => p.sitemap).map(([path]) => seo.site + path);
+  try {
+    const res = await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ host, key, keyLocation: `${seo.site}/${key}.txt`, urlList }),
+    });
+    console.log('IndexNow', res.status, urlList.length, 'urls');
+  } catch (e) {
+    console.log('IndexNow skipped:', e.message);
+  }
+}
