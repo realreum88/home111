@@ -4,6 +4,7 @@ import { ArrowRight, Check, Pause, Play, ShieldCheck, Phone } from 'lucide-react
 import { Character, CharKind, Sparkle } from '../components/Characters';
 import { STORE } from '../store';
 import { DEVICES } from '../devices';
+import SEO from '../seo.json';
 
 type Kind = 'repair' | 'battery' | 'data';
 
@@ -94,6 +95,8 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
   const [selected, setSelected] = useState<number | null>(null);
   useEffect(() => setSelected(null), [kind, device]);
   const selectedText = selected === null ? '' : c.options[selected];
+  const deviceId = DEVICES.find((d) => d.name === device)?.id;
+  const deviceQA = ((deviceId && (SEO.pages as Record<string, { qa?: string[][] }>)['/services/' + deviceId]?.qa) || []) as [string, string][];
   const next = '/contact?' + new URLSearchParams({ service: device || c.name, symptom: selectedText }).toString();
 
   return (
@@ -198,6 +201,28 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
             ))}
           </div>
         </section>
+
+        {deviceQA.length > 0 && (
+          <section className="device-qa">
+            <div className="section-title">
+              <div>
+                <span className="badge">Q&amp;A</span>
+                <h2>{device} 수리, 자주 묻는 질문</h2>
+              </div>
+            </div>
+            <div className="faq-list">
+              {deviceQA.map(([q, a], i) => (
+                <details key={q} className="panel" open={i === 0}>
+                  <summary>
+                    <span className="q">Q</span>
+                    {q}
+                  </summary>
+                  <p>{a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="care-bottom">
           <p>

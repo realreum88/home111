@@ -37,14 +37,38 @@ function render(path, page) {
   if (page.sitemap === false && !page.canonical) {
     html = html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex,follow">');
   }
-  // 자주 묻는 질문 구조화 데이터는 홈·FAQ에만 둡니다.
-  if (path !== '/' && path !== '/faq') {
-    html = html.replace(/<script type="application\/ld\+json">(?:(?!<\/script>).)*"FAQPage"(?:(?!<\/script>).)*<\/script>/s, '');
+  // 페이지별 구조화 데이터 (검색엔진·AI가 페이지 성격을 정확히 이해하도록)
+  const qa = path === '/faq' ? seo.faq : page.qa || [];
+  const ld = [];
+  const crumbs = [{ name: '홈', url: seo.site + '/' }];
+  if (path.startsWith('/services/')) crumbs.push({ name: '수리하기', url: seo.site + '/services' });
+  if (path !== '/') crumbs.push({ name: page.crumb || page.h1, url: canonical });
+  if (crumbs.length > 1) {
+    ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })) });
   }
+  if (page.service) {
+    ld.push({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: page.service.name,
+      serviceType: page.service.name,
+      description: page.description,
+      url: canonical,
+      provider: { '@id': seo.site + '/#business' },
+      areaServed: [{ '@type': 'CollegeOrUniversity', name: '중앙대학교' }, { '@type': 'CollegeOrUniversity', name: '숭실대학교' }, { '@type': 'City', name: '서울' }],
+      hasOfferCatalog: { '@type': 'OfferCatalog', name: page.service.name + ' 항목', itemListElement: page.service.items.map((n) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: page.service.device + ' ' + n } })) },
+    });
+  }
+  if (qa.length) {
+    ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: qa.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
+  }
+  const ldTags = ld.map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`).join('');
+  html = html.replace('</head>', ldTags + '</head>');
   const body =
     `<main data-prerender><h1>${esc(page.h1)}</h1>` +
     `<p>${esc(page.description)}</p>` +
     (page.body.length ? `<ul>${page.body.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : '') +
+    (qa.length ? `<section><h2>자주 묻는 질문</h2>${qa.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('')}</section>` : '') +
     `<nav><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul></nav></main>`;
   html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`);
   const out = path === '/' ? join(dist, 'index.html') : join(dist, path.slice(1), 'index.html');
