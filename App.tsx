@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CarePage from './pages/CarePage';
-import { HashRouter, Link, Routes, Route, useLocation, useParams, Navigate } from 'react-router-dom';
+import { BrowserRouter, Link, Routes, Route, useLocation, useParams, Navigate } from 'react-router-dom';
 import {
   ArrowRight,
   ChevronLeft,
@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { Character, CharKind, StoreArt, Sparkle } from './components/Characters';
 import { DEVICES, deviceById } from './devices';
+import SEO from './seo.json';
 import { STORE } from './store';
 
 
@@ -865,6 +866,13 @@ function Shell() {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    // 메뉴별 제목·설명·대표주소 (검색엔진용, seo.json에서 관리)
+    const pages = SEO.pages as Record<string, { title: string; description: string; canonical?: string }>;
+    const key = pathname === '/services/display' ? '/services/iphone' : pathname.replace(/\/$/, '') || '/';
+    const page = pages[key] || pages['/'];
+    document.title = page.title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SEO.site + (page.canonical || (pages[key] ? key : '/')));
   }, [pathname]);
   return (
     <>
@@ -899,8 +907,8 @@ function Shell() {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Shell />
-    </HashRouter>
+    </BrowserRouter>
   );
 }
