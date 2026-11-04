@@ -1242,7 +1242,7 @@ function SectionNav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return (
-    <nav className="sec-nav" aria-label="이 페이지 바로가기" ref={(n) => {
+    <nav className="sec-nav" aria-label="이 페이지 바로가기" ref={(n: HTMLElement | null) => {
       const on = n?.querySelector<HTMLElement>('a.on');
       if (n && on) n.scrollTo({ left: on.offsetLeft - 20, behavior: 'smooth' });
     }}>
