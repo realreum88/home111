@@ -1084,7 +1084,7 @@ function RequestForm({ service }: { service?: string }) {
     <section className="full" id="request">
       <div className="request">
         <h2>
-          {service || '수리'}
+          아이폰 · 아이패드 · 맥북 수리
           <br />
           상담 신청
         </h2>
@@ -1097,7 +1097,9 @@ function RequestForm({ service }: { service?: string }) {
           }}
         >
           <label>
-            기기 모델 <i>*</i>
+            <span>
+              기기 모델 <i>*</i>
+            </span>
             <input required value={f.model} onChange={set('model')} placeholder="예: 아이패드 에어 5, 아이폰 15 프로" />
           </label>
           <label>
@@ -1109,7 +1111,9 @@ function RequestForm({ service }: { service?: string }) {
             </select>
           </label>
           <label className="wide">
-            증상 <i>*</i>
+            <span>
+              증상 <i>*</i>
+            </span>
             <textarea required rows={3} value={f.symptom} onChange={set('symptom')} placeholder="예: 떨어뜨린 뒤 화면 아래쪽 터치가 안 돼요" />
           </label>
           <label>
@@ -1153,46 +1157,78 @@ function RequestForm({ service }: { service?: string }) {
   );
 }
 
-// 손님들이 많이 찾아주시는 지역 (대표 확인)
-const REGIONS: { key: string; en: string; name: string; sub: string; groups: [string, string[]][] }[] = [
-  { key: 'seoul', en: 'SEOUL', name: '서울', sub: '동작·관악·서초·용산·영등포', groups: [['동작구', ['상도동', '노량진', '흑석동', '동작동', '사당동', '신대방']], ['관악구', ['신림', '서울대입구', '낙성대동', '삼성동']], ['서초구', ['반포동', '방배동']], ['용산구', ['용산', '이촌동']], ['영등포구', ['여의도']]] },
-  { key: 'incheon', en: 'INCHEON', name: '인천', sub: '인천·청라', groups: [['인천', ['인천', '청라']]] },
-  { key: 'gangwon', en: 'GANGWON · GYEONGGI', name: '강원 · 경기', sub: '춘천·원주·철원·양평', groups: [['강원', ['춘천', '원주', '철원']], ['경기', ['양평']]] },
+// 서비스 가능 지역 (가까운 곳은 방문, 먼 곳은 택배·퀵). hot = 실제로 손님이 많이 찾아주시는 동네 (대표 확인)
+type Region = { key: string; en: string; name: string; count: string; how: string; list: string[]; hot?: Record<string, string[]> };
+const REGIONS: Region[] = [
+  {
+    key: 'seoul', en: 'SEOUL', name: '서울', count: '25개 구', how: '방문 · 택배 · 퀵',
+    list: ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+    hot: { 동작구: ['상도동', '노량진', '흑석동', '동작동', '사당동', '신대방'], 관악구: ['신림', '서울대입구', '낙성대동', '삼성동'], 서초구: ['반포동', '방배동'], 용산구: ['용산', '이촌동'], 영등포구: ['여의도'] },
+  },
+  {
+    key: 'incheon', en: 'INCHEON', name: '인천', count: '9개 구 · 2개 군', how: '방문 · 택배 · 퀵',
+    list: ['제물포구', '영종구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서구', '검단구', '강화군', '옹진군'],
+    hot: { 서구: ['청라'] },
+  },
+  {
+    key: 'gyeonggi', en: 'GYEONGGI', name: '경기', count: '28개 시 · 3개 군', how: '방문 · 택배 · 퀵',
+    list: ['수원시', '성남시', '고양시', '용인시', '부천시', '안산시', '안양시', '남양주시', '화성시', '평택시', '의정부시', '시흥시', '파주시', '광명시', '김포시', '군포시', '광주시', '이천시', '양주시', '오산시', '구리시', '안성시', '포천시', '의왕시', '하남시', '여주시', '동두천시', '과천시', '양평군', '가평군', '연천군'],
+    hot: { 양평군: ['양평'] },
+  },
+  {
+    key: 'gangwon', en: 'GANGWON', name: '강원', count: '7개 시 · 11개 군', how: '택배',
+    list: ['춘천시', '원주시', '강릉시', '동해시', '태백시', '속초시', '삼척시', '홍천군', '횡성군', '영월군', '평창군', '정선군', '철원군', '화천군', '양구군', '인제군', '고성군', '양양군'],
+    hot: { 춘천시: ['춘천'], 원주시: ['원주'], 철원군: ['철원'] },
+  },
+  {
+    key: 'nation', en: 'NATIONWIDE', name: '전국', count: '광역시 · 도', how: '택배',
+    list: ['부산', '대구', '대전', '광주', '울산', '세종', '충북', '충남', '전북', '전남', '경북', '경남', '제주'],
+  },
 ];
-const REGION_TEXT = REGIONS.map((r) => r.groups.map(([g, ns]) => `${g}(${ns.join('/')})`).join(', ')).join(', ');
+const REGION_TEXT = REGIONS.map((r) => `${r.name}(${r.list.join('/')})`).join(', ');
 
 function Regions({ name }: { name: string }) {
   const [open, setOpen] = useState<string | null>('seoul');
+  const cur = REGIONS.find((r) => r.key === open);
   return (
     <div className="regions">
       <h3 className="regions-title">
-        <MapPin size={22} /> {name}, 이런 지역에서 많이 찾아주세요
+        <MapPin size={22} /> {name}, 지역별 접수 안내
       </h3>
+      <p className="regions-lead">지역을 누르면 시·구가 펼쳐져요. 주황색은 실제로 많이 찾아주시는 곳이에요.</p>
       <div className="region-cards">
         {REGIONS.map((r) => (
           <div key={r.key} className={'panel region-card' + (open === r.key ? ' on' : '')}>
             <button aria-expanded={open === r.key} onClick={() => setOpen(open === r.key ? null : r.key)}>
               <small>{r.en}</small>
               <b>
-                {r.name} <ChevronDown size={24} />
+                {r.name} <ChevronDown size={22} />
               </b>
-              <em>{r.sub}</em>
+              <em>{r.count}</em>
             </button>
           </div>
         ))}
       </div>
-      {open && (
+      {cur && (
         <div className="panel region-detail">
-          {REGIONS.find((r) => r.key === open)!.groups.map(([g, ns]) => (
-            <div key={g} className="region-row">
-              <b>{g}</b>
-              <span>{ns.join(' · ')}</span>
-            </div>
-          ))}
+          <p className="region-how">
+            <b>{cur.name}</b> 접수 방법: {cur.how}
+          </p>
+          <div className="region-chips">
+            {cur.list.map((g) => {
+              const hot = cur.hot?.[g];
+              return (
+                <span key={g} className={'region-chip' + (hot ? ' hot' : '')}>
+                  {g}
+                  {hot && hot.join('') !== g.replace(/[시군구]$/, '') && <small>{hot.join(' · ')}</small>}
+                </span>
+              );
+            })}
+          </div>
         </div>
       )}
       <p className="region-note">
-        <Clock size={16} /> 지역별 지점이 아니에요. 상도동 매장 한 곳에서 대표가 직접 수리하고, 먼 곳은 택배·퀵으로 맡기실 수 있어요.
+        <Clock size={16} /> 지역별 지점이 아니에요. 상도동 매장 한 곳에서 대표가 직접 수리하고, 먼 곳은 택배(편도 택배비)·퀵(손님 부담)으로 맡기실 수 있어요.
       </p>
     </div>
   );
