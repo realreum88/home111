@@ -1,12 +1,14 @@
 // content/blog/*.md → blog.generated.json
-// 홈페이지 수리칼럼(/blog) 글을 빌드 전에 읽어 화면(React)과 정적 HTML(prerender)이 함께 씁니다.
-// 글 맨 위 --- 사이에 title, description, date, slug, device, draft 를 적습니다.
+// 홈페이지 수리 사례 글을 빌드 전에 읽어 화면(React)과 정적 HTML(prerender)이 함께 씁니다.
+// 주소 구조: /services/<기기>/<지역>/<글주소>   예) /services/ipad/sangdo/상도동아이패드액정수리
+// 글 맨 위 --- 사이에 title, description, date, device, area, areaName, slug, draft 를 적습니다.
 // "## 자주 묻는 질문" 아래 "### 질문" + 답변 문단은 FAQ 구조화 데이터로도 들어갑니다.
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
 const dir = join(root, 'content', 'blog');
+const DEVICES = ['iphone', 'ipad', 'macbook', 'watch'];
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function inline(t) {
@@ -93,8 +95,10 @@ function parse(file) {
     const k = line.match(/^(\w+):\s*(.*)$/);
     if (k) meta[k[1]] = k[2].trim().replace(/^["']|["']$/g, '');
   }
-  for (const key of ['title', 'description', 'date', 'slug']) if (!meta[key]) throw new Error(`${file}: ${key} 가 비어 있어요`);
-  if (!/^[a-z0-9-]+$/.test(meta.slug)) throw new Error(`${file}: slug 는 영문 소문자·숫자·- 만 써주세요`);
+  for (const key of ['title', 'description', 'date', 'slug', 'device', 'area', 'areaName']) if (!meta[key]) throw new Error(`${file}: ${key} 가 비어 있어요`);
+  if (!DEVICES.includes(meta.device)) throw new Error(`${file}: device 는 ${DEVICES.join(', ')} 중 하나예요`);
+  if (!/^[a-z0-9-]+$/.test(meta.area)) throw new Error(`${file}: area 는 영문 소문자·숫자·- 만 써주세요 (예: sangdo)`);
+  if (!/^[가-힣a-z0-9-]+$/.test(meta.slug)) throw new Error(`${file}: slug 는 한글·영문 소문자·숫자·- 만, 띄어쓰기 없이 써주세요`);
   const { html, faq, toc } = markdown(m[2]);
   return {
     slug: meta.slug,
@@ -102,7 +106,10 @@ function parse(file) {
     description: meta.description,
     date: meta.date,
     updated: meta.updated || meta.date,
-    device: meta.device || '',
+    device: meta.device,
+    area: meta.area,
+    areaName: meta.areaName,
+    path: `/services/${meta.device}/${meta.area}/${meta.slug}`,
     draft: meta.draft === 'true',
     html,
     faq,
@@ -115,10 +122,10 @@ const posts = existsSync(dir)
   : [];
 const showDrafts = process.env.BLOG_DRAFTS === '1';
 const live = posts.filter((p) => showDrafts || !p.draft).sort((a, b) => (a.date < b.date ? 1 : -1));
-const slugs = new Set();
+const paths = new Set();
 for (const p of live) {
-  if (slugs.has(p.slug)) throw new Error(`slug 중복: ${p.slug}`);
-  slugs.add(p.slug);
+  if (paths.has(p.path)) throw new Error(`주소 중복: ${p.path}`);
+  paths.add(p.path);
 }
 writeFileSync(join(root, 'blog.generated.json'), JSON.stringify(live, null, 1));
 console.log('blog', live.length, 'posts', posts.length - live.length ? `(${posts.length - live.length} draft 제외)` : '');

@@ -607,3 +607,6 @@ form .button { justify-self: start; }
 .article-body ol { list-style: decimal; }
 .article-body ul { list-style: disc; }
 .article-body li::marker { font-weight: 900; color: var(--orange); }
+.column-tag.area { background: var(--blue); }
+.device-posts { padding: 20px 0 90px; }
+.inner-page > section.full, .article-page > section { width: 100%; }

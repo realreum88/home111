@@ -111,7 +111,6 @@ function Header() {
           <Link to="/services">수리하기</Link>
           <Link to="/delivery">택배수리</Link>
           <Link to="/reviews">수리후기</Link>
-          {COLUMNS.length > 0 && <Link to="/blog">수리칼럼</Link>}
           <Link to="/locations">매장안내</Link>
           <a href={STORE.tel} className="nav-call">
             <Phone size={18} /> {STORE.phone}
@@ -141,7 +140,7 @@ function Footer() {
           <Link to="/delivery">택배수리</Link>
           <Link to="/reviews">수리후기</Link>
           <Link to="/locations">매장 안내</Link>
-          {COLUMNS.length > 0 && <Link to="/blog">수리칼럼</Link>}
+          <Link to="/cases">수리 사례</Link>
           <Link to="/faq">자주 묻는 질문</Link>
           <Link to="/contact">상담 준비</Link>
           <ExtLink href={STORE.kakao}>카카오톡 채널</ExtLink>
@@ -559,10 +558,13 @@ function Services() {
 function Detail() {
   const { serviceId } = useParams();
   return (
-    <CarePage
-      kind={serviceId === 'battery' ? 'battery' : serviceId === 'data' ? 'data' : 'repair'}
-      device={deviceById(serviceId)?.name}
-    />
+    <>
+      <CarePage
+        kind={serviceId === 'battery' ? 'battery' : serviceId === 'data' ? 'data' : 'repair'}
+        device={deviceById(serviceId)?.name}
+      />
+      {serviceId && <DevicePosts device={serviceId} />}
+    </>
   );
 }
 
@@ -606,55 +608,98 @@ function Locations() {
   );
 }
 
-type Column = { slug: string; title: string; description: string; date: string; updated: string; device: string; html: string; faq: [string, string][]; toc: string[] };
+type Column = { slug: string; title: string; description: string; date: string; updated: string; device: string; area: string; areaName: string; path: string; html: string; faq: [string, string][]; toc: string[] };
 const COLUMNS = BLOG as unknown as Column[];
 const DEVICE_LABEL: Record<string, string> = { iphone: '아이폰', ipad: '아이패드', macbook: '맥북', watch: '애플워치' };
 const dot = (d: string) => d.replace(/-/g, '.');
 
-function BlogList() {
+// 지역 목록 페이지 제목·설명 (/services/<기기>/<지역>)
+function areaMeta(device: string, area: string) {
+  const posts = COLUMNS.filter((p) => p.device === device && p.area === area);
+  if (!posts.length) return null;
+  const name = posts[0].areaName;
+  const label = DEVICE_LABEL[device];
+  return {
+    name,
+    label,
+    posts,
+    title: `${name} ${label}수리 사례 | 세이프픽스`,
+    description: `${name}에서 맡기신 ${label}를 대표가 직접 고친 수리 사례를 모았어요. 증상, 진단, 수리 과정과 결과를 확인해보세요.`,
+  };
+}
+
+function PostCards({ posts, showDevice = false }: { posts: Column[]; showDevice?: boolean }) {
+  return (
+    <div className="post-grid">
+      {posts.map((p) => (
+        <Link key={p.path} to={p.path} className="panel post-card column-card">
+          <div className="post-body">
+            <small>
+              {dot(p.date)}
+              {showDevice && <span className="column-tag">{DEVICE_LABEL[p.device]}</span>}
+              <span className="column-tag area">{p.areaName}</span>
+            </small>
+            <h3>{p.title}</h3>
+            <p>{p.description}</p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function DevicePosts({ device }: { device: string }) {
+  const posts = COLUMNS.filter((p) => p.device === device);
+  if (!posts.length) return null;
+  return (
+    <section className="shell device-posts">
+      <SectionTitle badge="REPAIR CASES" title={<>{DEVICE_LABEL[device]} 수리 사례</>} to="/cases" label="전체 수리 사례" />
+      <PostCards posts={posts} />
+    </section>
+  );
+}
+
+function Crumbs({ items }: { items: [string, string?][] }) {
+  return (
+    <nav className="crumbs" aria-label="현재 위치">
+      {items.map(([t, to], i) => (
+        <React.Fragment key={t + i}>
+          {i > 0 && <ChevronRight size={14} />}
+          {to ? <Link to={to}>{t}</Link> : <span>{t}</span>}
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+}
+
+function AreaPage() {
+  const { serviceId = '', area = '' } = useParams();
+  const m = areaMeta(serviceId, area);
+  if (!m) return <Navigate to={`/services/${serviceId}`} replace />;
   return (
     <>
-      <PageHead badge="REPAIR COLUMN" title={<>수리하면서 알게 된 것, <em>질문으로 답해드려요.</em></>} lead="대표가 직접 고치며 확인한 내용만 정리해요." kind="tablet" pose="point" />
+      <PageHead badge="REPAIR CASES" title={<>{m.name} {m.label}수리, <em>직접 고친 기록이에요.</em></>} lead={`${m.name}에서 맡기신 ${m.label}를 대표가 직접 고쳤어요.`} kind="tablet" pose="point" />
       <div className="shell inner-page">
-        {COLUMNS.length === 0 ? (
-          <div className="panel tip-box">
-            <p>첫 칼럼을 준비하고 있어요. 그동안 수리 작업 사례를 먼저 확인해보세요.</p>
-            <Link className="button" to="/cases">▶ 수리 작업 사례 보기</Link>
-          </div>
-        ) : (
-          <div className="post-grid">
-            {COLUMNS.map((p) => (
-              <Link key={p.slug} to={`/blog/${p.slug}`} className="panel post-card column-card">
-                <div className="post-body">
-                  <small>
-                    {dot(p.date)}
-                    {DEVICE_LABEL[p.device] && <span className="column-tag">{DEVICE_LABEL[p.device]}</span>}
-                  </small>
-                  <h3>{p.title}</h3>
-                  <p>{p.description}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        <Crumbs items={[['홈', '/'], ['수리하기', '/services'], [m.label + '수리', `/services/${serviceId}`], [m.name]]} />
+        <PostCards posts={m.posts} />
       </div>
     </>
   );
 }
 
-function BlogPostPage() {
-  const { slug } = useParams();
-  const post = COLUMNS.find((p) => p.slug === slug);
-  if (!post) return <Navigate to="/blog" replace />;
-  const device = post.device && DEVICE_LABEL[post.device];
+function PostPage() {
+  const { serviceId = '', area = '', slug = '' } = useParams();
+  const post = COLUMNS.find((p) => p.path === `/services/${serviceId}/${area}/${slug}`);
+  if (!post) return <Navigate to={`/services/${serviceId}`} replace />;
+  const device = DEVICE_LABEL[post.device];
+  const areaPath = `/services/${post.device}/${post.area}`;
+  const more = COLUMNS.filter((p) => p.device === post.device && p.path !== post.path).slice(0, 3);
   return (
     <div className="shell article-page">
-      <nav className="crumbs" aria-label="현재 위치">
-        <Link to="/">홈</Link> <ChevronRight size={14} /> <Link to="/blog">수리칼럼</Link>
-      </nav>
+      <Crumbs items={[['홈', '/'], ['수리하기', '/services'], [device + '수리', `/services/${post.device}`], [post.areaName, areaPath]]} />
       <article className="panel article">
         <header>
-          {device && <span className="badge">{device}</span>}
+          <span className="badge">{post.areaName} · {device}</span>
           <h1>{post.title}</h1>
           <p className="article-lead">{post.description}</p>
           <p className="article-meta">
@@ -675,16 +720,17 @@ function BlogPostPage() {
           <ExtLink className="button" href={STORE.booking}>
             <CalendarCheck size={18} /> 네이버 예약하기
           </ExtLink>
-          {post.device && (
-            <Link className="button" to={`/services/${post.device}`}>
-              {device} 수리 안내 보기
-            </Link>
-          )}
+          <Link className="button" to={`/services/${post.device}`}>
+            {device} 수리 안내 보기
+          </Link>
         </div>
       </div>
-      <Link className="more-link" to="/blog">
-        <ChevronLeft size={18} /> 수리칼럼 목록
-      </Link>
+      {more.length > 0 && (
+        <section>
+          <SectionTitle badge="MORE" title={<>다른 {device} 수리 사례</>} />
+          <PostCards posts={more} />
+        </section>
+      )}
     </div>
   );
 }
@@ -711,6 +757,17 @@ function Cases() {
     <>
       <PageHead badge="REPAIR CASES" title={<>직접 고친 기록, <em>그대로 보여드려요.</em></>} lead="블로그와 클립에 수리 과정을 하나하나 남기고 있어요." kind="laptop" pose="point" />
       <div className="shell inner-page">
+        {COLUMNS.length > 0 && (
+          <section className="full">
+            <div className="section-title">
+              <div>
+                <span className="badge">SAFEFIX CASES</span>
+                <h2>세이프픽스 수리 사례</h2>
+              </div>
+            </div>
+            <PostCards posts={COLUMNS} showDevice />
+          </section>
+        )}
         <div className="case-links">
           <ExtLink href={STORE.blog} className="panel case-link blog">
             <span className="badge">BLOG</span>
@@ -946,12 +1003,20 @@ function Shell() {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     // 메뉴별 제목·설명·대표주소 (검색엔진용, seo.json에서 관리)
     const pages = SEO.pages as Record<string, { title: string; description: string; canonical?: string }>;
-    const key = pathname === '/services/display' ? '/services/iphone' : pathname.replace(/\/$/, '') || '/';
-    const col = key.startsWith('/blog/') ? COLUMNS.find((p) => '/blog/' + p.slug === key) : undefined;
-    const page: { title: string; description: string; canonical?: string } = col ? { title: col.title + ' | 세이프픽스 수리칼럼', description: col.description } : pages[key] || pages['/'];
+    let path = pathname;
+    try {
+      path = decodeURIComponent(pathname);
+    } catch {}
+    const key = path === '/services/display' ? '/services/iphone' : path.replace(/\/$/, '') || '/';
+    const seg = key.split('/');
+    const col = COLUMNS.find((p) => p.path === key);
+    const area = seg.length === 4 && seg[1] === 'services' ? areaMeta(seg[2], seg[3]) : null;
+    const page: { title: string; description: string; canonical?: string } = col
+      ? { title: col.title + ' | 세이프픽스', description: col.description }
+      : area || pages[key] || pages['/'];
     document.title = page.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
-    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SEO.site + (page.canonical || (pages[key] || col ? key : '/')));
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SEO.site + encodeURI(page.canonical || (pages[key] || col || area ? key : '/')));
   }, [pathname]);
   return (
     <>
@@ -967,8 +1032,8 @@ function Shell() {
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/blog" element={<BlogList />} />
-          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/services/:serviceId/:area" element={<AreaPage />} />
+          <Route path="/services/:serviceId/:area/:slug" element={<PostPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

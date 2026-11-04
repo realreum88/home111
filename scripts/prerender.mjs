@@ -9,22 +9,41 @@ const root = new URL('..', import.meta.url).pathname;
 const dist = join(root, 'dist');
 const seo = JSON.parse(readFileSync(join(root, 'seo.json'), 'utf8'));
 const blog = JSON.parse(readFileSync(join(root, 'blog.generated.json'), 'utf8'));
-// 수리칼럼 글을 페이지 목록에 합칩니다 (/blog/<slug>)
+// 수리 사례 글을 페이지 목록에 합칩니다: /services/<기기>/<지역>/<글주소>
+const LABEL = { iphone: '아이폰', ipad: '아이패드', macbook: '맥북', watch: '애플워치' };
+const link = (p) => [p.path, p.title, p.description];
 for (const post of blog) {
-  seo.pages['/blog/' + post.slug] = {
-    title: post.title + ' | 세이프픽스 수리칼럼',
+  const areaPath = `/services/${post.device}/${post.area}`;
+  seo.pages[post.path] = {
+    title: post.title + ' | 세이프픽스',
     description: post.description,
     h1: post.title,
     body: [],
     sitemap: true,
     priority: '0.6',
     crumb: post.title,
+    trail: [[LABEL[post.device] + '수리', `/services/${post.device}`], [post.areaName, areaPath]],
     qa: post.faq,
     article: post,
   };
+  if (!seo.pages[areaPath]) {
+    const posts = blog.filter((p) => p.device === post.device && p.area === post.area);
+    seo.pages[areaPath] = {
+      title: `${post.areaName} ${LABEL[post.device]}수리 사례 | 세이프픽스`,
+      description: `${post.areaName}에서 맡기신 ${LABEL[post.device]}를 대표가 직접 고친 수리 사례를 모았어요. 증상, 진단, 수리 과정과 결과를 확인해보세요.`,
+      h1: `${post.areaName} ${LABEL[post.device]}수리 사례`,
+      body: [],
+      sitemap: true,
+      priority: '0.6',
+      crumb: post.areaName,
+      trail: [[LABEL[post.device] + '수리', `/services/${post.device}`]],
+      links: posts.map(link),
+    };
+  }
+  const dev = seo.pages[`/services/${post.device}`];
+  if (dev) (dev.links ||= []).push(link(post));
 }
-if (seo.pages['/blog'] && !blog.length) seo.pages['/blog'].sitemap = false; // 글이 없으면 색인 제외
-if (seo.pages['/blog']) seo.pages['/blog'].links = blog.map((p) => ['/blog/' + p.slug, p.title, p.description]);
+if (seo.pages['/cases']) seo.pages['/cases'].links = blog.map(link);
 const base = readFileSync(join(dist, 'index.html'), 'utf8');
 const today = new Date().toISOString().slice(0, 10);
 
@@ -38,13 +57,12 @@ const nav = [
   ['/services/watch', '애플워치수리'],
   ['/delivery', '택배수리'],
   ['/cases', '수리 사례'],
-  ['/blog', '수리칼럼'],
   ['/locations', '매장안내'],
   ['/faq', '자주 묻는 질문'],
 ];
 
 function render(path, page) {
-  const canonical = seo.site + (page.canonical || path);
+  const canonical = seo.site + encodeURI(page.canonical || path);
   let html = base
     .replace(/<title>.*?<\/title>/, `<title>${esc(page.title)}</title>`)
     .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(page.description)}">`)
@@ -60,7 +78,7 @@ function render(path, page) {
   const ld = [];
   const crumbs = [{ name: '홈', url: seo.site + '/' }];
   if (path.startsWith('/services/')) crumbs.push({ name: '수리하기', url: seo.site + '/services' });
-  if (path.startsWith('/blog/')) crumbs.push({ name: '수리칼럼', url: seo.site + '/blog' });
+  for (const [name, p] of page.trail || []) crumbs.push({ name, url: seo.site + encodeURI(p) });
   if (path !== '/') crumbs.push({ name: page.crumb || page.h1, url: canonical });
   if (crumbs.length > 1) {
     ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })) });
@@ -107,7 +125,7 @@ function render(path, page) {
     : `<main data-prerender><h1>${esc(page.h1)}</h1>` +
     `<p>${esc(page.description)}</p>` +
     (page.body.length ? `<ul>${page.body.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : '') +
-    (page.links?.length ? `<ul>${page.links.map(([h, t, d]) => `<li><a href="${h}">${esc(t)}</a> — ${esc(d)}</li>`).join('')}</ul>` : '') +
+    (page.links?.length ? `<ul>${page.links.map(([h, t, d]) => `<li><a href="${encodeURI(h)}">${esc(t)}</a> — ${esc(d)}</li>`).join('')}</ul>` : '') +
     (qa.length ? `<section><h2>자주 묻는 질문</h2>${qa.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('')}</section>` : '') +
     `<nav><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul></nav></main>`;
   html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`);
@@ -120,7 +138,7 @@ for (const [path, page] of Object.entries(seo.pages)) render(path, page);
 
 const urls = Object.entries(seo.pages)
   .filter(([, p]) => p.sitemap)
-  .map(([path, p]) => `  <url>\n    <loc>${seo.site}${path}</loc>\n    <lastmod>${p.article ? p.article.updated : today}</lastmod>\n    <priority>${p.priority}</priority>\n  </url>`)
+  .map(([path, p]) => `  <url>\n    <loc>${seo.site}${encodeURI(path)}</loc>\n    <lastmod>${p.article ? p.article.updated : today}</lastmod>\n    <priority>${p.priority}</priority>\n  </url>`)
   .join('\n');
 writeFileSync(join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 console.log('prerendered', Object.keys(seo.pages).length, 'pages');
@@ -130,7 +148,7 @@ console.log('prerendered', Object.keys(seo.pages).length, 'pages');
 if (process.env.VERCEL_ENV === 'production') {
   const key = readFileSync(join(root, '.indexnow-key'), 'utf8').trim();
   const host = new URL(seo.site).host;
-  const urlList = Object.entries(seo.pages).filter(([, p]) => p.sitemap).map(([path]) => seo.site + path);
+  const urlList = Object.entries(seo.pages).filter(([, p]) => p.sitemap).map(([path]) => seo.site + encodeURI(path));
   try {
     const res = await fetch('https://api.indexnow.org/indexnow', {
       method: 'POST',
