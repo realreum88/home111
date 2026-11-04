@@ -447,6 +447,7 @@ function Home() {
         </section>
 
         <EsgSection />
+        <PartnerSection />
 
         <section className="coupon">
           <div className="coupon-ticket">
@@ -1352,6 +1353,39 @@ function ToTop() {
   );
 }
 
+function PartnerSection() {
+  return (
+    <section className="full partners" id="partners">
+      <SectionHead eyebrow="PARTNERSHIP" title="현대카드 · 포스코" accent="임직원 제휴 수리점" lead="대기업 임직원에게 전용 수리 혜택을 제공하는 협력 업체예요." />
+      <div className="partner-grid">
+        <div className="panel partner-card">
+          <img src="/images/partner-hyundaicard.webp" alt="현대카드 × 세이프픽스 임직원 전용 모바일기기 수리 혜택 안내물" loading="lazy" />
+          <div className="partner-body">
+            <span className="partner-tag">HYUNDAI CARD × SAFEFIX</span>
+            <h3>현대카드 임직원 전용 수리 혜택</h3>
+            <ul>
+              <li><b>10% 상시 할인</b> 수리비 즉시 적용</li>
+              <li><b>AS 6개월 보증</b> 기존 3개월 → 6개월 연장</li>
+              <li><b>보험 서류 무료 대행</b> 여행자 보험 청구용</li>
+              <li><b>강화유리 무료 증정</b> 액정 보호 강화유리</li>
+              <li><b>후면 유리 재수리 보증 6개월</b> 6개월 이내 1회 무상 재수리</li>
+            </ul>
+          </div>
+        </div>
+        <div className="panel partner-card">
+          <img src="/images/partner-posco.webp" alt="포스코 × 세이프픽스 임직원 전용 모바일기기 수리 혜택 안내물" loading="lazy" className="tall" />
+          <div className="partner-body">
+            <span className="partner-tag posco">POSCO × SAFEFIX</span>
+            <h3>포스코 임직원 전용 수리 혜택</h3>
+            <p>포스코 임직원분들께 전용 모바일기기 수리 혜택을 제공하고 있어요. 자세한 혜택은 상담할 때 안내해드려요.</p>
+          </div>
+        </div>
+      </div>
+      <p className="partner-note">임직원 혜택은 상담할 때 소속을 말씀해주시면 안내해드려요.</p>
+    </section>
+  );
+}
+
 function EsgSection() {
   return (
     <section className="full esg" id="esg">
@@ -1574,6 +1608,7 @@ function About() {
         </section>
         <CeoCard />
         <EsgSection />
+        <PartnerSection />
         <ReviewSection />
         <Principles />
         <section className="full">

@@ -943,3 +943,19 @@ form .button { justify-self: start; }
   .esg-no { width: 44px; height: 44px; font-size: 16px; }
   .esg-point h3 { font-size: 19px; }
 }
+/* 기업 제휴 */
+.partner-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: stretch; }
+.partner-card { overflow: hidden; display: flex; flex-direction: column; padding: 0; }
+.partner-card img { width: 100%; display: block; border-bottom: var(--line) solid var(--navy); aspect-ratio: 1055 / 360; object-fit: cover; }
+.partner-card img.tall { aspect-ratio: 1055 / 360; object-position: center 22%; }
+.partner-body { padding: 22px 26px 26px; display: grid; gap: 10px; align-content: start; }
+.partner-tag { justify-self: start; font-size: 13px; font-weight: 900; letter-spacing: 0.12em; background: #c9a96e; color: var(--navy); padding: 5px 12px; border-radius: 6px; }
+.partner-tag.posco { background: #1f3a5f; color: #fff; }
+.partner-body h3 { margin: 0; font-size: 24px; font-weight: 900; word-break: keep-all; }
+.partner-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.partner-body li { font-size: 17px; line-height: 1.5; padding-left: 26px; position: relative; color: var(--sub); }
+.partner-body li::before { content: '✓'; position: absolute; left: 0; color: var(--orange-d); font-weight: 900; }
+.partner-body li b { color: var(--navy); margin-right: 6px; }
+.partner-body p { margin: 0; font-size: 17px; line-height: 1.7; color: var(--sub); word-break: keep-all; }
+.partner-note { text-align: center; margin: 16px 0 0; color: var(--sub); font-weight: 700; }
+@media (max-width: 900px) { .partner-grid { grid-template-columns: 1fr; } .partner-body h3 { font-size: 21px; } .partner-body li { font-size: 16px; } }
