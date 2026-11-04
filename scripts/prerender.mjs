@@ -14,6 +14,7 @@ const blog = JSON.parse(readFileSync(join(root, 'blog.generated.json'), 'utf8'))
 const SERVICES = JSON.parse(readFileSync(join(root, 'services.json'), 'utf8'));
 const LABEL = { iphone: '아이폰', ipad: '아이패드', macbook: '맥북', watch: '애플워치' };
 const link = (p) => [p.path, p.title, p.description];
+const REGION_LINE = '많이 찾아주시는 지역: 서울 동작구(상도동/노량진/흑석동/동작동/사당동/신대방), 관악구(신림/서울대입구/낙성대동/삼성동), 서초구(반포동/방배동), 용산구(용산/이촌동), 영등포구(여의도), 인천(청라), 강원(춘천/원주/철원), 경기(양평). 먼 지역은 택배(편도 택배비)·퀵(손님 부담)으로 접수할 수 있어요.';
 const STORE_LINE = '서울 동작구 상도로47아길 44-1 동작청년창업지원센터 3층 304호 · 0507-1330-5340 · 중앙대·숭실대 도보 10분 · 무료 주차';
 for (const s of SERVICES) {
   const warranty = s.warranty || '3개월';
@@ -23,7 +24,7 @@ for (const s of SERVICES) {
     title: `${s.name} 상도동 중앙대·숭실대 | 세이프픽스`,
     description: `${s.name}(${s.short}), 외주 없이 대표가 직접 진단하고 고쳐요. 중앙대·숭실대 도보 10분, 무료 주차, 수리 후 ${warranty} 무상 보증.`,
     h1: `${s.name}, 대표가 직접 고쳐요`,
-    body: [...s.symptoms.map((x) => '증상: ' + x), ...(s.points || []), `수리 후 ${warranty} 무상 보증(고객 과실 제외).`, STORE_LINE],
+    body: [...s.symptoms.map((x) => '증상: ' + x), ...(s.points || []), `수리 후 ${warranty} 무상 보증(고객 과실 제외).`, STORE_LINE, REGION_LINE],
     sitemap: true,
     priority: '0.8',
     crumb: s.name,

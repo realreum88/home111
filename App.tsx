@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronDown,
+  ChevronUp,
   ChevronRight,
   Plus,
   MapPin,
@@ -35,6 +36,7 @@ import SEO from './seo.json';
 import BLOG from './blog.generated.json';
 import SERVICES from './services.json';
 import ABOUT from './about.json';
+import REVIEWS from './reviews.json';
 import { STORE } from './store';
 
 
@@ -115,6 +117,7 @@ function Header() {
       <div className="navigation shell">
         <Brand />
         <nav className={open ? 'nav-links is-open' : 'nav-links'} aria-label="주 메뉴">
+          <Link to="/" className="nav-home">홈</Link>
           <Link to="/about">회사소개</Link>
           <div className={svcOpen ? 'nav-drop is-open' : 'nav-drop'}>
             <Link to="/services" className="nav-drop-top">서비스</Link>
@@ -136,6 +139,14 @@ function Header() {
           </div>
           <Link to="/cases">수리사례</Link>
           <Link to="/contact">상담문의</Link>
+          <div className="nav-ext">
+            <ExtLink href={STORE.blog} label="네이버 블로그">BLOG</ExtLink>
+            <ExtLink href={STORE.clip} label="네이버 클립">CLIP</ExtLink>
+            <ExtLink href={STORE.kakao} label="카카오톡 채널">KAKAO</ExtLink>
+          </div>
+          <Link to="/contact" className="nav-cta">
+            <CalendarCheck size={22} /> 수리 상담 신청
+          </Link>
           <a href={STORE.tel} className="nav-call">
             <Phone size={18} /> {STORE.phone}
           </a>
@@ -764,6 +775,13 @@ function CtaPanel({ title, text, extra }: { title: string; text: string; extra?:
   );
 }
 
+const IPAD_STEPS: [string, string][] = [
+  ['점검 및 진단', '증상을 듣고 기기를 열어 원인을 정확히 찾아요. 점검 후 비용과 시간을 먼저 안내해요.'],
+  ['수리 전 기능 테스트', '수리 전에 터치·충전·카메라 등 다른 기능의 상태를 먼저 확인해 기록해요.'],
+  ['수리·새 부품 교체 후 정상 작동 확인', '수리하거나 새 부품으로 교체한 뒤 바로 정상 작동하는지 확인해요.'],
+  ['최종 점검', '충방전, 터치, 해상도, 애플펜슬, 버벅거림, 전·후면 카메라까지 하나씩 다시 확인해요.'],
+  ['출고', '점검을 마친 기기를 돌려드려요. 택배 접수는 우체국 택배로 보내드려요.'],
+];
 const STEPS: [string, string][] = [
   ['모델과 증상 알려주기', '전화·톡톡·방문 중 편한 방법으로 지금 상태를 알려주세요.'],
   ['점검', '대표가 직접 기기를 열어 원인을 확인해요.'],
@@ -813,7 +831,7 @@ function faqItems(s?: Svc): Faq[] {
     { cat: '보증 & 사후 관리', q: '방문 전에 무엇을 준비하나요?', a: '기기 모델명, 증상, 이전 수리 이력을 알려주세요. 가능하다면 중요한 데이터를 미리 백업해주세요.' },
     { cat: '방문 & 택배', q: '중앙대·숭실대에서 가까운가요?', a: '네, 중앙대와 숭실대 모두 걸어서 약 10분 거리예요. 방문 전에 연락 주시면 기다리지 않으셔도 돼요.' },
     { cat: '방문 & 택배', q: '어디에 있나요? 주차되나요?', a: `${STORE.address} ${STORE.addressDetail}에 있어요. 중앙대·숭실대에서 걸어서 약 10분이고, 무료 주차가 가능해요.` },
-    { cat: '방문 & 택배', q: '멀리 있어도 맡길 수 있나요?', a: '네, 전국 택배 수리와 퀵 접수가 가능해요. 점검 후 비용을 안내하고 동의하시면 수리해서 우체국 택배로 보내드려요. 보통 1~2일 걸려요.' },
+    { cat: '방문 & 택배', q: '멀리 있어도 맡길 수 있나요?', a: '네, 전국 택배 수리와 퀵 접수가 가능해요. 택배비는 편도만 부담하시면 되고, 퀵 비용은 손님 부담이에요. 점검 후 비용을 안내하고 동의하시면 수리해서 우체국 택배로 보내드려요. 보통 1~2일 걸려요.' },
     { cat: '특수 상황', q: '침수되거나 전원이 안 켜지면 어떻게 하나요?', a: '충전과 반복적인 전원 켜기를 피하고 그대로 가져와 주세요. 상태를 점검한 뒤 가능 여부를 안내해드려요.' },
     { cat: '특수 상황', q: '해외여행 중에 기기가 파손됐어요.', a: '여행자 보험 청구에 필요한 견적서, 영수증, 수리 사진 등을 준비해드려요. 상담할 때 보험 청구 예정이라고 말씀해주세요.' },
   ];
@@ -858,7 +876,7 @@ function CeoCard() {
 
 function StepCards({ title, accent, lead, steps }: { title: string; accent: string; lead: string; steps: [string, string][] }) {
   return (
-    <section className="full">
+    <section className="full" id="process">
       <SectionHead eyebrow="PROCESS" title={title} accent={accent} lead={lead} />
       <ol className="step-cards">
         {steps.map(([t, d], i) => (
@@ -886,7 +904,7 @@ function CostBasis({ name }: { name: string }) {
   ];
   const right = ['기기 모델명 (설정 › 일반 › 정보에서 확인할 수 있어요)', '언제부터 어떤 증상이 생겼는지, 떨어뜨림·침수 여부', '이전에 다른 곳에서 수리한 이력', '중요한 데이터 백업 여부'];
   return (
-    <section className="full">
+    <section className="full" id="cost">
       <SectionHead eyebrow="BEFORE REPAIR" title={`${name},`} accent="비용을 정하는 기준" lead="점검 후 비용을 먼저 안내드리고, 동의하신 경우에만 수리해요." />
       <div className="panel basis">
         <div className="basis-col">
@@ -918,7 +936,7 @@ function Principles({ warranty }: { warranty?: string }) {
     [<ShieldCheck size={30} />, '수리 후 무상 보증', [warranty ? `수리 후 ${warranty} 동안 같은 증상이 생기면 무상으로 봐드려요.` : '아이패드 액정 1개월, 그 밖의 수리 3개월 무상 보증.', '고객 과실(낙하·침수)은 제외돼요.']],
   ];
   return (
-    <section className="full">
+    <section className="full" id="promise">
       <SectionHead eyebrow="PROMISE" title="세이프픽스가 약속하는" accent="3대 수리 원칙" />
       <div className="principles">
         {items.map(([ic, t, ds], i) => (
@@ -943,7 +961,7 @@ function FaqTabs({ items }: { items: Faq[] }) {
   const cats = ['전체', ...FAQ_CATS.filter((c) => items.some((f) => f.cat === c))];
   const shown = cat === '전체' ? items : items.filter((f) => f.cat === cat);
   return (
-    <section className="full">
+    <section className="full" id="faq">
       <SectionHead eyebrow="Q&A" title="가장 많이 물어보시는" accent="안심 Q&A" lead="궁금한 카테고리를 골라보세요." />
       <div className="faq-tabs" role="tablist">
         {cats.map((c) => (
@@ -977,12 +995,12 @@ function FaqTabs({ items }: { items: Faq[] }) {
 function ServiceArea({ name }: { name: string }) {
   const cards: [string, string, string, React.ReactNode, string[]][] = [
     ['VISIT', '매장 방문', '중앙대·숭실대 도보 10분', <MapPin size={34} />, [`${STORE.address} ${STORE.addressDetail}`, '무료 주차 가능', `영업 ${STORE.hours} (${STORE.hoursNote})`]],
-    ['DELIVERY', '전국 택배', '우체국 택배로 1~2일', <Truck size={34} />, ['먼저 연락 주시면 포장·접수 방법을 알려드려요.', '점검 후 비용 안내, 동의하시면 수리해요.', '수리 후 우체국 택배로 보내드려요.']],
-    ['QUICK', '퀵 접수', '급하실 때', <Zap size={34} />, ['퀵으로도 접수할 수 있어요.', '보내시기 전에 먼저 연락 주세요.']],
+    ['DELIVERY', '전국 택배', '우체국 택배로 1~2일', <Truck size={34} />, ['먼저 연락 주시면 포장·접수 방법을 알려드려요.', '점검 후 비용 안내, 동의하시면 수리해요.', '수리 후 우체국 택배로 보내드려요.', '택배비는 편도만 부담하시면 돼요.']],
+    ['QUICK', '퀵 접수', '급하실 때', <Zap size={34} />, ['퀵으로도 접수할 수 있어요.', '퀵 비용은 손님 부담이에요.', '보내시기 전에 먼저 연락 주세요.']],
   ];
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section className="full">
+    <section className="full" id="area">
       <SectionHead eyebrow="SERVICE AREA" title={`${name},`} accent="어디서든 맡기세요" lead="방법을 누르면 자세한 안내가 펼쳐져요." />
       <div className="area-cards">
         {cards.map(([en, t, sub, ic, lines], i) => (
@@ -1010,6 +1028,7 @@ function ServiceArea({ name }: { name: string }) {
       <p className="muted area-note">
         <Link to="/delivery">택배 수리 자세히 보기 →</Link>
       </p>
+      <Regions name={name} />
     </section>
   );
 }
@@ -1022,7 +1041,7 @@ function RequestForm({ service }: { service?: string }) {
   const text = `[세이프픽스 수리 상담]\n수리: ${service || '-'}\n모델: ${f.model}\n증상: ${f.symptom}\n접수 방법: ${f.way}\n희망 일정: ${f.date || '-'}\n요청사항: ${f.memo || '-'}`;
   const sms = `sms:${STORE.phone.replace(/-/g, '')}${/iPhone|iPad|Mac/.test(typeof navigator === 'undefined' ? '' : navigator.userAgent) ? '&' : '?'}body=${encodeURIComponent(msg)}`;
   return (
-    <section className="full">
+    <section className="full" id="request">
       <div className="request">
         <h2>
           {service || '수리'}
@@ -1094,6 +1113,171 @@ function RequestForm({ service }: { service?: string }) {
   );
 }
 
+// 손님들이 많이 찾아주시는 지역 (대표 확인)
+const REGIONS: { key: string; en: string; name: string; sub: string; groups: [string, string[]][] }[] = [
+  { key: 'seoul', en: 'SEOUL', name: '서울', sub: '동작·관악·서초·용산·영등포', groups: [['동작구', ['상도동', '노량진', '흑석동', '동작동', '사당동', '신대방']], ['관악구', ['신림', '서울대입구', '낙성대동', '삼성동']], ['서초구', ['반포동', '방배동']], ['용산구', ['용산', '이촌동']], ['영등포구', ['여의도']]] },
+  { key: 'incheon', en: 'INCHEON', name: '인천', sub: '인천·청라', groups: [['인천', ['인천', '청라']]] },
+  { key: 'gangwon', en: 'GANGWON · GYEONGGI', name: '강원 · 경기', sub: '춘천·원주·철원·양평', groups: [['강원', ['춘천', '원주', '철원']], ['경기', ['양평']]] },
+];
+const REGION_TEXT = REGIONS.map((r) => r.groups.map(([g, ns]) => `${g}(${ns.join('/')})`).join(', ')).join(', ');
+
+function Regions({ name }: { name: string }) {
+  const [open, setOpen] = useState<string | null>('seoul');
+  return (
+    <div className="regions">
+      <h3 className="regions-title">
+        <MapPin size={22} /> {name}, 이런 지역에서 많이 찾아주세요
+      </h3>
+      <div className="region-cards">
+        {REGIONS.map((r) => (
+          <div key={r.key} className={'panel region-card' + (open === r.key ? ' on' : '')}>
+            <button aria-expanded={open === r.key} onClick={() => setOpen(open === r.key ? null : r.key)}>
+              <small>{r.en}</small>
+              <b>
+                {r.name} <ChevronDown size={24} />
+              </b>
+              <em>{r.sub}</em>
+            </button>
+          </div>
+        ))}
+      </div>
+      {open && (
+        <div className="panel region-detail">
+          {REGIONS.find((r) => r.key === open)!.groups.map(([g, ns]) => (
+            <div key={g} className="region-row">
+              <b>{g}</b>
+              <span>{ns.join(' · ')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="region-note">
+        <Clock size={16} /> 지역별 지점이 아니에요. 상도동 매장 한 곳에서 대표가 직접 수리하고, 먼 곳은 택배·퀵으로 맡기실 수 있어요.
+      </p>
+    </div>
+  );
+}
+
+type Review = { name: string; source: string; service?: string; score?: string; text: string; tags?: string[]; image?: string };
+function ReviewSection() {
+  const list = REVIEWS as Review[];
+  return (
+    <section className="full" id="reviews">
+      <div className="stars" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <Star key={i} size={40} />
+        ))}
+      </div>
+      <SectionHead eyebrow="REVIEW" title="직접 맡겨보신" accent="손님들의 후기" lead="저희가 아닌, 실제로 수리를 맡기신 손님들의 이야기예요." />
+      <div className="review-scores big">
+        <ExtLink href={STORE.naverReview} className="panel score-card">
+          <NaverBadge />
+          <b>{STORE.reviews.naver.score}</b>
+          <span>네이버 리뷰 {STORE.reviews.naver.count}개</span>
+        </ExtLink>
+        <ExtLink href={STORE.daangn} className="panel score-card">
+          <DaangnBadge />
+          <b>{STORE.reviews.daangn.score}</b>
+          <span>당근 이웃 후기 {STORE.reviews.daangn.count}개</span>
+        </ExtLink>
+      </div>
+      {list.length > 0 && (
+        <div className="review-grid">
+          {list.map((r, i) => (
+            <div key={i} className="panel review-item">
+              {r.image && <img src={r.image} alt="" loading="lazy" />}
+              <div className="review-head">
+                <b>{r.name}</b>
+                <small>{r.source}</small>
+              </div>
+              {r.service && (
+                <p className="review-svc">
+                  {r.service} {r.score && <span>★ {r.score}</span>}
+                </p>
+              )}
+              <p className="review-text">{r.text}</p>
+              {r.tags && (
+                <div className="review-tags">
+                  {r.tags.map((t) => (
+                    <span key={t}>{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="delivery-actions bridge-more">
+        <ExtLink className="button" href={STORE.naverReview}>
+          네이버 리뷰 전체 보기 <ExternalLink size={18} />
+        </ExtLink>
+      </div>
+    </section>
+  );
+}
+
+const SECTION_TABS: [string, string][] = [
+  ['cases', '수리 사례'],
+  ['reviews', '후기'],
+  ['process', '진행 과정'],
+  ['cost', '비용 기준'],
+  ['promise', '3대 원칙'],
+  ['faq', 'Q&A'],
+  ['area', '접수·지역'],
+  ['request', '상담 신청'],
+];
+function SectionNav() {
+  const [cur, setCur] = useState('');
+  useEffect(() => {
+    const onScroll = () => {
+      let c = '';
+      for (const [id] of SECTION_TABS) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top < 220) c = id;
+      }
+      setCur(c);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <nav className="sec-nav" aria-label="이 페이지 바로가기" ref={(n) => {
+      const on = n?.querySelector<HTMLElement>('a.on');
+      if (n && on) n.scrollTo({ left: on.offsetLeft - 20, behavior: 'smooth' });
+    }}>
+      {SECTION_TABS.map(([id, t]) => (
+        <a
+          key={id}
+          href={'#' + id}
+          className={cur === id ? 'on' : ''}
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        >
+          {t}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function ToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const f = () => setShow(window.scrollY > 900);
+    window.addEventListener('scroll', f, { passive: true });
+    return () => window.removeEventListener('scroll', f);
+  }, []);
+  if (!show) return null;
+  return (
+    <button className="to-top" aria-label="맨 위로" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <ChevronUp size={26} strokeWidth={3} />
+    </button>
+  );
+}
+
 function ServicePage({ svc }: { svc: Svc }) {
   const posts = COLUMNS.filter((p) => p.service === svc.id);
   const areas = areasOf(svc.id);
@@ -1104,6 +1288,7 @@ function ServicePage({ svc }: { svc: Svc }) {
       <PageHead badge={`${label} 수리`} title={<>{svc.name}, <em>대표가 직접 고쳐요.</em></>} lead={`${svc.short}. 중앙대·숭실대 도보 10분, 외주 없이 대표가 직접 진단하고 수리해요.`} kind={DEVICE_KIND[svc.device]} pose="point" />
       <div className="shell inner-page svc-page">
         <Crumbs items={[['홈', '/'], ['서비스', '/services'], [label, '/services/' + svc.device], [svc.name]]} />
+        <SectionNav />
 
         <section className="full">
           <SectionHead eyebrow="CHECK" title={`${svc.name},`} accent="내 기기 먼저 확인해 보세요" lead="이런 증상이 하나라도 있다면 점검을 받아보세요." />
@@ -1125,6 +1310,8 @@ function ServicePage({ svc }: { svc: Svc }) {
 
         <ServiceBlog svc={svc} />
 
+        <ReviewSection />
+
         <CeoCard />
 
         {svc.points && svc.points.length > 0 && (
@@ -1140,7 +1327,7 @@ function ServicePage({ svc }: { svc: Svc }) {
           </section>
         )}
 
-        <StepCards title={svc.name} accent="진행 과정" lead="연락부터 출고 점검까지, 이 순서로 진행해요." steps={STEPS} />
+        <StepCards title={svc.name} accent={svc.device === 'ipad' ? '작업 범위 및 정밀 프로세스' : '진행 과정'} lead={svc.device === 'ipad' ? '수리 전 기능 테스트부터 최종 점검까지, 빠짐없이 확인해요.' : '연락부터 출고 점검까지, 이 순서로 진행해요.'} steps={svc.device === 'ipad' ? IPAD_STEPS : STEPS} />
 
         <CostBasis name={svc.name} />
 
@@ -1364,7 +1551,7 @@ function BlogCards({ posts }: { posts: BlogPost[] }) {
 // "위에 보여드린 사례는 일부예요. 전체 수리 과정이 궁금하시다면?" + 블로그 수리기 카드
 function BlogBridge({ posts, lead = '위에 보여드린 사례는 실제 수리한 기기의 일부예요.' }: { posts: BlogPost[] | null; lead?: string }) {
   return (
-    <section className="full">
+    <section className="full" id="cases">
       <div className="panel bridge">
         <h2>{lead}</h2>
         <p>전체 수리 과정이 궁금하시다면??</p>
@@ -1677,6 +1864,7 @@ function Shell() {
         </Routes>
       </main>
       <Footer />
+      <ToTop />
       <a className="floating-contact" href={STORE.tel} aria-label={'전화 상담 ' + STORE.phone}>
         <Phone size={26} />
       </a>
