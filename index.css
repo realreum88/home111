@@ -671,3 +671,22 @@ form .button { justify-self: start; }
 @media (max-width: 900px) {
   .nav-links .nav-mega-grid a { display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.35; }
 }
+
+/* 수리사례 필터 · 블로그 수리기 */
+.filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.filter-grid .chip { border-radius: 14px; padding: 13px 10px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 6px; word-break: keep-all; }
+.filter-grid .chip small { font-size: 12px; font-weight: 900; background: var(--yellow); color: var(--navy); border: 2px solid var(--navy); border-radius: 999px; padding: 0 7px; }
+.filter-grid .chip.on { background: var(--orange); color: #fff; box-shadow: 3px 3px 0 var(--navy); }
+.bridge { text-align: center; padding: 34px 20px 24px; margin-bottom: 24px; }
+.bridge h2 { margin: 0 0 8px; font-size: 30px; font-weight: 900; word-break: keep-all; }
+.bridge p { margin: 0; font-size: 22px; font-weight: 900; color: var(--orange-d); }
+.bridge-arrows { display: grid; justify-items: center; margin-top: 10px; color: var(--orange); line-height: 0; }
+.bridge-arrows svg + svg { margin-top: -14px; opacity: 0.6; }
+.blog-thumb { position: relative; border-bottom: var(--line) solid var(--navy); }
+.blog-card .blog-thumb img { border-bottom: 0; display: block; }
+.blog-thumb-empty { aspect-ratio: 16 / 10; display: grid; place-items: center; background: var(--cream2); font-weight: 900; font-size: 22px; color: var(--orange-d); }
+.blog-tag { position: absolute; top: 12px; left: 12px; background: #03c75a; color: #fff; font-size: 13px; font-weight: 900; padding: 4px 10px; border-radius: 8px; border: 2px solid var(--navy); }
+.blog-card .post-body h3 { font-size: 18px; }
+.bridge-more { margin-top: 22px; justify-content: center; }
+.button.ghost-dark { background: var(--white); color: var(--navy); }
+@media (max-width: 900px) { .filter-grid { grid-template-columns: repeat(2, 1fr); } .bridge h2 { font-size: 23px; } .bridge p { font-size: 18px; } }

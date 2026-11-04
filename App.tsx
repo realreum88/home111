@@ -831,19 +831,14 @@ function ServicePage({ svc }: { svc: Svc }) {
           </section>
         )}
 
-        <section className="full">
-          <SectionTitle badge="REAL CASES" title={<>{svc.name} 실제 수리 사례</>} to={posts.length ? '/cases' : undefined} label="전체 수리사례" />
-          {posts.length ? (
+        {posts.length > 0 && (
+          <section className="full">
+            <SectionTitle badge="REAL CASES" title={<>{svc.name} 실제 수리 사례</>} to="/cases" label="전체 수리사례" />
             <PostCards posts={posts} />
-          ) : (
-            <div className="panel tip-box">
-              <p>홈페이지 사례를 정리하고 있어요. 그동안 블로그에 남긴 수리 기록을 확인해보세요.</p>
-              <ExtLink className="button" href={STORE.blog}>
-                블로그 수리 기록 보기 <ExternalLink size={18} />
-              </ExtLink>
-            </div>
-          )}
-        </section>
+          </section>
+        )}
+
+        <ServiceBlog svc={svc} />
 
         <section className="full">
           <SectionTitle badge="PROCESS" title={<>{svc.name} 진행 과정</>} />
@@ -1027,86 +1022,142 @@ function About() {
 
 type BlogPost = { title: string; link: string; date: string; image: string; summary: string };
 
-function Cases() {
-  const [filter, setFilter] = useState('all');
+// 네이버 블로그 글을 한 번만 불러와 여러 화면에서 같이 씁니다.
+let blogCache: Promise<BlogPost[]> | null = null;
+function useBlog() {
   const [posts, setPosts] = useState<BlogPost[] | null>(null);
   useEffect(() => {
     let alive = true;
-    fetch('/api/blog')
+    blogCache ||= fetch('/api/blog')
       .then((r) => (r.ok ? r.json() : { items: [] }))
-      .then((d) => alive && setPosts(Array.isArray(d.items) ? d.items : []))
-      .catch(() => alive && setPosts([]));
+      .then((d) => (Array.isArray(d.items) ? d.items : []))
+      .catch(() => []);
+    blogCache.then((items) => alive && setPosts(items));
     return () => {
       alive = false;
     };
   }, []);
-  const fmt = (d: string) => {
-    const t = new Date(d);
-    return isNaN(t.getTime()) ? '' : `${t.getFullYear()}.${String(t.getMonth() + 1).padStart(2, '0')}.${String(t.getDate()).padStart(2, '0')}`;
-  };
+  return posts;
+}
+const DEVICE_WORDS: Record<string, string[]> = { iphone: ['아이폰', 'iphone'], ipad: ['아이패드', 'ipad'], macbook: ['맥북', 'macbook'], watch: ['애플워치', '애플 워치', 'apple watch'] };
+// 블로그 글 제목으로 어떤 서비스 글인지 분류해요 (기기 이름 + 수리 키워드)
+function blogService(title: string): Svc | undefined {
+  const t = title.toLowerCase();
+  return SVCS.find((s) => DEVICE_WORDS[s.device].some((w) => t.includes(w)) && (s as Svc & { keywords?: string[] }).keywords?.some((k) => t.includes(k.toLowerCase())));
+}
+function blogDevice(title: string) {
+  const t = title.toLowerCase();
+  return Object.keys(DEVICE_WORDS).find((d) => DEVICE_WORDS[d].some((w) => t.includes(w)));
+}
+const fmtDate = (d: string) => {
+  const t = new Date(d);
+  return isNaN(t.getTime()) ? '' : `${t.getFullYear()}.${String(t.getMonth() + 1).padStart(2, '0')}.${String(t.getDate()).padStart(2, '0')}`;
+};
+
+function BlogCards({ posts }: { posts: BlogPost[] }) {
+  return (
+    <div className="post-grid">
+      {posts.map((p) => (
+        <React.Fragment key={p.link}>
+          <ExtLink href={p.link} className="panel post-card blog-card">
+            <div className="blog-thumb">
+              {p.image ? <img src={p.image} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <div className="blog-thumb-empty">SAFEFIX</div>}
+              <span className="blog-tag">블로그 수리기</span>
+            </div>
+            <div className="post-body">
+              <small>{fmtDate(p.date)}</small>
+              <h3>{p.title}</h3>
+            </div>
+          </ExtLink>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// "위에 보여드린 사례는 일부예요. 전체 수리 과정이 궁금하시다면?" + 블로그 수리기 카드
+function BlogBridge({ posts, lead = '위에 보여드린 사례는 실제 수리한 기기의 일부예요.' }: { posts: BlogPost[] | null; lead?: string }) {
+  return (
+    <section className="full">
+      <div className="panel bridge">
+        <h2>{lead}</h2>
+        <p>전체 수리 과정이 궁금하시다면??</p>
+        <span className="bridge-arrows" aria-hidden="true">
+          <ChevronDown size={40} strokeWidth={3.5} />
+          <ChevronDown size={30} strokeWidth={3.5} />
+        </span>
+      </div>
+      {posts === null ? (
+        <p className="muted">블로그 수리기를 불러오는 중이에요…</p>
+      ) : posts.length ? (
+        <BlogCards posts={posts} />
+      ) : (
+        <div className="panel tip-box">
+          <p>분해부터 부품 교체, 마무리 점검까지 블로그에 사진으로 기록하고 있어요.</p>
+        </div>
+      )}
+      <div className="delivery-actions bridge-more">
+        <ExtLink className="button" href={STORE.blog}>
+          블로그 수리기 전체 보기 <ExternalLink size={18} />
+        </ExtLink>
+        <ExtLink className="button ghost-dark" href={STORE.clip}>
+          <Play size={18} /> 클립 수리 영상 보기
+        </ExtLink>
+      </div>
+    </section>
+  );
+}
+
+function ServiceBlog({ svc }: { svc: Svc }) {
+  const all = useBlog();
+  const posts = all && all.filter((p) => blogService(p.title)?.id === svc.id).slice(0, 6);
+  const fallback = all && all.filter((p) => blogDevice(p.title) === svc.device).slice(0, 3);
+  return <BlogBridge posts={posts && (posts.length ? posts : fallback)} lead={`위에 보여드린 ${svc.name} 사례는 일부예요.`} />;
+}
+
+function Cases() {
+  const [filter, setFilter] = useState('all');
+  const blog = useBlog();
+  const svcOf = (id: string) => (id === 'all' ? null : svcById(id));
+  const sel = svcOf(filter);
+  const home = sel ? COLUMNS.filter((p) => p.service === sel.id) : COLUMNS;
+  const blogPosts = blog && (sel ? blog.filter((p) => blogService(p.title)?.id === sel.id) : blog);
+  const count = (id: string) => COLUMNS.filter((p) => p.service === id).length + (blog ? blog.filter((p) => blogService(p.title)?.id === id).length : 0);
   return (
     <>
-      <PageHead badge="REPAIR CASES" title={<>직접 고친 기록, <em>그대로 보여드려요.</em></>} lead="대표가 직접 진단하고 고친 수리 사례를 하나하나 남기고 있어요." kind="laptop" pose="point" />
+      <PageHead badge="REPAIR CASES" title={<>직접 고친 기록, <em>그대로 보여드려요.</em></>} lead="대표가 직접 진단하고 고친 수리 사례를 서비스별로 모았어요." kind="laptop" pose="point" />
       <div className="shell inner-page">
-        {COLUMNS.length > 0 && (
-          <section className="full">
-            <SectionTitle badge="SAFEFIX CASES" title="세이프픽스 수리 사례" />
-            <div className="filter-chips" role="tablist">
-              {['all', ...Object.keys(DEVICE_LABEL)].map((d) => (
-                <button key={d} role="tab" aria-selected={filter === d} className={filter === d ? 'chip on' : 'chip'} onClick={() => setFilter(d)}>
-                  {d === 'all' ? '전체' : DEVICE_LABEL[d]} ({d === 'all' ? COLUMNS.length : COLUMNS.filter((p) => p.device === d).length})
-                </button>
-              ))}
-            </div>
-            <PostCards posts={filter === 'all' ? COLUMNS : COLUMNS.filter((p) => p.device === filter)} showService />
-          </section>
-        )}
-        <div className="case-links">
-          <ExtLink href={STORE.blog} className="panel case-link blog">
-            <span className="badge">BLOG</span>
-            <h3>블로그 수리 작업 사례</h3>
-            <p>분해부터 부품 교체, 마무리 점검까지 사진으로 기록했어요.</p>
-            <span className="go">
-              블로그 보러가기 <ExternalLink size={18} />
-            </span>
-          </ExtLink>
-          <ExtLink href={STORE.clip} className="panel case-link clip">
-            <span className="badge orange">CLIP</span>
-            <h3>클립 수리 영상</h3>
-            <p>짧은 영상으로 실제 작업 장면을 확인해보세요.</p>
-            <span className="go">
-              <Play size={18} /> 클립 영상 보러가기 <ExternalLink size={18} />
-            </span>
-          </ExtLink>
-        </div>
-
-        <div className="section-title">
-          <div>
-            <span className="badge">NEW POST</span>
-            <h2>최근 올린 작업 사례</h2>
-          </div>
-        </div>
-        {posts === null ? (
-          <p className="muted">블로그 글을 불러오는 중이에요…</p>
-        ) : posts.length === 0 ? (
-          <div className="panel tip-box">
-            <p>최신 글은 블로그에서 바로 확인해주세요.</p>
-          </div>
-        ) : (
-          <div className="post-grid">
-            {posts.map((p) => (
-              <React.Fragment key={p.link}>
-              <ExtLink href={p.link} className="panel post-card">
-                {p.image && <img src={p.image} alt="" loading="lazy" referrerPolicy="no-referrer" />}
-                <div className="post-body">
-                  <small>{fmt(p.date)}</small>
-                  <h3>{p.title}</h3>
-                  {p.summary && <p>{p.summary}</p>}
-                </div>
-              </ExtLink>
-              </React.Fragment>
+        <section className="full">
+          <SectionTitle badge="GALLERY" title="서비스별 수리 사례" />
+          <p className="muted">보고 싶은 수리를 골라보세요.</p>
+          <div className="filter-grid" role="tablist" aria-label="서비스별 수리 사례">
+            <button role="tab" aria-selected={filter === 'all'} className={filter === 'all' ? 'chip on' : 'chip'} onClick={() => setFilter('all')}>
+              전체
+            </button>
+            {SVCS.map((s) => (
+              <button key={s.id} role="tab" aria-selected={filter === s.id} className={filter === s.id ? 'chip on' : 'chip'} onClick={() => setFilter(s.id)}>
+                {s.name}
+                {count(s.id) > 0 && <small>{count(s.id)}</small>}
+              </button>
             ))}
           </div>
+        </section>
+
+        {home.length > 0 && (
+          <section className="full">
+            <SectionTitle badge="SAFEFIX CASES" title={sel ? `${sel.name} 사례` : '홈페이지 수리 사례'} to={sel ? '/services/' + sel.id : undefined} label={sel ? `${sel.name} 안내` : undefined} />
+            <PostCards posts={home} showService />
+          </section>
+        )}
+
+        <BlogBridge
+          posts={blogPosts}
+          lead={home.length ? '위에 보여드린 사례는 실제 수리한 기기의 일부예요.' : sel ? `${sel.name} 수리 과정, 블로그에 기록했어요.` : '실제 수리 과정을 블로그에 하나하나 기록했어요.'}
+        />
+        {sel && blogPosts && blogPosts.length === 0 && (
+          <p className="muted">
+            아직 {sel.name} 사례를 정리하는 중이에요. <Link to={'/services/' + sel.id}>{sel.name} 안내 보기</Link>
+          </p>
         )}
       </div>
     </>

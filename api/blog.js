@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const r = await fetch(FEED, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SafefixSite/1.0)' } });
     if (!r.ok) throw new Error('feed ' + r.status);
     const xml = await r.text();
-    const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 6).map(([, it]) => {
+    const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 50).map(([, it]) => {
       const desc = pick(it, 'description');
       const img = (desc.match(/<img[^>]+src=["']([^"']+)["']/) || [])[1] || '';
       const text = strip(desc);
