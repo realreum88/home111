@@ -969,3 +969,9 @@ form .button { justify-self: start; }
   .coupon { grid-template-columns: 1fr; padding: 24px 20px; }
   .coupon-art { display: none; }
 }
+@media (max-width: 900px) {
+  .nav-links.is-open { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  body.menu-open { overflow: hidden; }
+  body.menu-open .floating-contact, body.menu-open .to-top { display: none; }
+}
+@media (max-width: 900px) { .nav-close { flex: 0 0 auto; padding: 0; min-height: 56px; aspect-ratio: 1; margin-bottom: 8px; } }

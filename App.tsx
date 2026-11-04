@@ -109,8 +109,22 @@ function Header() {
     setSvcOpen(false);
     setHomeOpen(false);
   }, [loc.pathname, loc.hash]);
+  // 모바일 메뉴: 화면 높이에 맞춰 메뉴 안에서 스크롤되게 하고, 뒤 페이지 스크롤과 떠 있는 버튼은 잠시 숨겨요
+  const headerRef = React.useRef<HTMLElement>(null);
+  const [menuMax, setMenuMax] = useState<number | undefined>();
+  useEffect(() => {
+    document.body.classList.toggle('menu-open', open);
+    if (!open) return;
+    const fit = () => setMenuMax(window.innerHeight - (headerRef.current?.getBoundingClientRect().bottom || 0));
+    fit();
+    window.addEventListener('resize', fit);
+    return () => {
+      window.removeEventListener('resize', fit);
+      document.body.classList.remove('menu-open');
+    };
+  }, [open]);
   return (
-    <header className="site-header">
+    <header className="site-header" ref={headerRef}>
       <div className="utility">
         <div className="shell">
           <span>
@@ -126,7 +140,7 @@ function Header() {
       </div>
       <div className="navigation shell">
         <Brand />
-        <nav className={open ? 'nav-links is-open' : 'nav-links'} aria-label="주 메뉴">
+        <nav className={open ? 'nav-links is-open' : 'nav-links'} aria-label="주 메뉴" style={open && menuMax ? { maxHeight: menuMax } : undefined}>
           <div className={homeOpen ? 'nav-drop nav-drop-home is-open' : 'nav-drop nav-drop-home'}>
             <Link to="/" className={'nav-drop-top' + (loc.pathname === '/' ? ' is-active' : '')}>홈</Link>
             <button className="nav-drop-toggle" aria-label="홈 바로가기 펼치기" aria-expanded={homeOpen} onClick={() => setHomeOpen(!homeOpen)}>
