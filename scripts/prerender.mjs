@@ -86,7 +86,7 @@ const nav = [
   ['/cases', '수리 사례'],
   ['/locations', '매장안내'],
   ['/faq', '자주 묻는 질문'],
-  ['/contact', '상담문의'],
+  ['/contact', '견적문의'],
 ];
 
 function render(path, page) {

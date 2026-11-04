@@ -51,6 +51,14 @@ const perks = [
 ];
 
 const faqs = SEO.faq as [string, string][];
+const HOME_SECTIONS: [string, string][] = [
+  ['process', '진행 과정'],
+  ['cost', '비용 기준'],
+  ['promise', '3대 원칙'],
+  ['area', '접수·지역'],
+  ['faq', 'Q&A'],
+  ['request', '상담 신청'],
+];
 
 function Brand() {
   return (
@@ -94,11 +102,13 @@ function DaangnBadge() {
 function Header() {
   const [open, setOpen] = useState(false);
   const [svcOpen, setSvcOpen] = useState(false);
+  const [homeOpen, setHomeOpen] = useState(false);
   const loc = useLocation();
   useEffect(() => {
     setOpen(false);
     setSvcOpen(false);
-  }, [loc.pathname]);
+    setHomeOpen(false);
+  }, [loc.pathname, loc.hash]);
   return (
     <header className="site-header">
       <div className="utility">
@@ -117,10 +127,22 @@ function Header() {
       <div className="navigation shell">
         <Brand />
         <nav className={open ? 'nav-links is-open' : 'nav-links'} aria-label="주 메뉴">
-          <Link to="/" className="nav-home">홈</Link>
-          <Link to="/about">회사소개</Link>
+          <div className={homeOpen ? 'nav-drop nav-drop-home is-open' : 'nav-drop nav-drop-home'}>
+            <Link to="/" className={'nav-drop-top' + (loc.pathname === '/' ? ' is-active' : '')}>홈</Link>
+            <button className="nav-drop-toggle" aria-label="홈 바로가기 펼치기" aria-expanded={homeOpen} onClick={() => setHomeOpen(!homeOpen)}>
+              <ChevronDown size={18} />
+            </button>
+            <div className="nav-sub">
+              {HOME_SECTIONS.map(([id, t]) => (
+                <Link key={id} to={{ pathname: '/', hash: '#' + id }} onClick={() => setOpen(false)}>
+                  {t}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <Link to="/about" className={loc.pathname === '/about' ? 'is-active' : ''}>회사소개</Link>
           <div className={svcOpen ? 'nav-drop is-open' : 'nav-drop'}>
-            <Link to="/services" className="nav-drop-top">서비스</Link>
+            <Link to="/services" className={'nav-drop-top' + (loc.pathname.startsWith('/services') ? ' is-active' : '')}>서비스</Link>
             <button className="nav-drop-toggle" aria-label="서비스 목록 펼치기" aria-expanded={svcOpen} onClick={() => setSvcOpen(!svcOpen)}>
               <ChevronDown size={18} />
             </button>
@@ -137,19 +159,22 @@ function Header() {
               ))}
             </div>
           </div>
-          <Link to="/cases">수리사례</Link>
-          <Link to="/contact">상담문의</Link>
+          <Link to="/cases" className={loc.pathname === '/cases' ? 'is-active' : ''}>수리사례</Link>
+          <Link to="/contact" className={loc.pathname === '/contact' ? 'is-active' : ''}>견적문의</Link>
           <div className="nav-ext">
             <ExtLink href={STORE.blog} label="네이버 블로그">BLOG</ExtLink>
             <ExtLink href={STORE.clip} label="네이버 클립">CLIP</ExtLink>
             <ExtLink href={STORE.kakao} label="카카오톡 채널">KAKAO</ExtLink>
           </div>
-          <Link to="/contact" className="nav-cta">
-            <CalendarCheck size={22} /> 수리 상담 신청
+          <Link to={{ pathname: '/', hash: '#request' }} className="nav-cta" onClick={() => setOpen(false)}>
+            <CalendarCheck size={22} /> 견적 문의하기
           </Link>
           <a href={STORE.tel} className="nav-call">
             <Phone size={18} /> {STORE.phone}
           </a>
+          <button className="nav-close" aria-label="메뉴 닫기" onClick={() => setOpen(false)}>
+            <ChevronUp size={26} strokeWidth={3} />
+          </button>
         </nav>
         <a href={STORE.tel} className="header-cta">
           <Phone size={19} /> 전화 상담
@@ -174,7 +199,7 @@ function Footer() {
           <Link to="/about">회사소개</Link>
           <Link to="/services">서비스</Link>
           <Link to="/cases">수리사례</Link>
-          <Link to="/contact">상담문의</Link>
+          <Link to="/contact">견적문의</Link>
           <Link to="/delivery">택배수리</Link>
           <Link to="/reviews">수리후기</Link>
           <Link to="/locations">매장 안내</Link>
@@ -506,6 +531,14 @@ function Home() {
             </Link>
           </div>
         </section>
+      </div>
+      <div className="shell inner-page svc-page home-extra">
+        <StepCards title="세이프픽스 수리" accent="진행 과정" lead="연락부터 출고 점검까지, 이 순서로 진행해요." steps={STEPS} />
+        <CostBasis name="세이프픽스 수리" />
+        <Principles />
+        <ServiceArea name="세이프픽스" />
+        <FaqTabs items={faqItems()} />
+        <RequestForm />
       </div>
     </>
   );
@@ -1854,9 +1887,14 @@ function Contact() {
 }
 
 function Shell() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    if (!hash) return;
+    const t = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    return () => clearTimeout(t);
+  }, [pathname, hash]);
+  useEffect(() => {
+    if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     // 메뉴별 제목·설명·대표주소 (검색엔진용, seo.json에서 관리)
     const pages = SEO.pages as Record<string, { title: string; description: string; canonical?: string }>;
     let path = pathname;

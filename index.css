@@ -858,3 +858,31 @@ form .button { justify-self: start; }
 .review-head b { font-size: 17px; }
 .review-text.clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 .review-toggle { justify-self: start; font: inherit; font-size: 15px; font-weight: 800; color: var(--sub); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* 홈 바로가기 드롭다운 */
+.nav-links .nav-home { display: none !important; }
+.nav-sub { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); z-index: 60; min-width: 190px; padding: 10px; background: var(--white); border: var(--line) solid var(--navy); border-radius: 18px; box-shadow: 6px 6px 0 var(--navy); }
+.nav-drop-home:hover .nav-sub, .nav-drop-home:focus-within .nav-sub { display: grid; }
+.nav-links .nav-sub a { font-size: 16px; padding: 9px 14px; border-radius: 10px; white-space: nowrap; }
+.nav-close { display: none; }
+.home-extra { padding-top: 40px; }
+@media (max-width: 900px) {
+  /* 모바일 메뉴: 가운데 정렬 줄 메뉴 */
+  .nav-links { padding: 0 0 20px; }
+  .nav-links > a, .nav-links > .nav-drop { text-align: center; justify-content: center; }
+  .nav-links > a { border-bottom: 2px solid rgba(15, 38, 62, 0.12); padding: 18px 8px; }
+  .nav-drop { justify-content: center; border-bottom: 2px solid rgba(15, 38, 62, 0.12); position: relative; }
+  .nav-links .nav-drop > .nav-drop-top { flex: 0 0 auto; padding: 18px 4px 18px 8px; }
+  .nav-drop-toggle { padding: 18px 6px; }
+  .nav-links a.is-active, .nav-links .nav-drop-top.is-active { color: var(--orange-d); }
+  .nav-links > a.is-active { background: var(--cream2); }
+  .nav-drop:has(.nav-drop-top.is-active) { background: var(--cream2); }
+  .nav-drop-home:hover .nav-sub, .nav-drop-home:focus-within .nav-sub { display: none; }
+  .nav-drop-home.is-open .nav-sub { display: grid; position: static; transform: none; width: 100%; grid-template-columns: 1fr 1fr; gap: 8px; box-shadow: none; border: 0; padding: 4px 16px 14px; background: transparent; }
+  .nav-links .nav-drop-home .nav-sub a { text-align: center; font-size: 15px; padding: 12px 6px; background: var(--white); border: 2px solid var(--navy); border-radius: 12px; }
+  .nav-drop.is-open .nav-mega { padding: 4px 16px 14px; }
+  .nav-ext { padding: 18px 0 8px; }
+  .nav-links .nav-cta { margin: 12px 16px 0; padding: 18px; font-size: 20px; }
+  .nav-links .nav-call { justify-content: center; border-bottom: 0; }
+  .nav-close { display: grid; place-items: center; margin: 4px auto 0; width: 56px; height: 56px; border-radius: 50%; background: var(--white); border: 3px solid var(--navy); color: var(--navy); cursor: pointer; }
+}
