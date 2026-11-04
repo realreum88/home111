@@ -978,3 +978,6 @@ form .button { justify-self: start; }
 [hidden] { display: none !important; }
 .article-more { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 28px; padding: 18px 20px; background: var(--cream2); border: 3px solid var(--navy); border-radius: 16px; }
 .article-more b { width: 100%; font-size: 17px; }
+.article-body figure { margin: 6px 0 24px; }
+.article-body figure img { width: 100%; display: block; border-radius: 14px; border: 3px solid var(--navy); }
+.article-body figcaption { margin-top: 8px; font-size: 15px; color: var(--sub); text-align: center; font-weight: 600; }

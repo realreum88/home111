@@ -165,6 +165,7 @@ function render(path, page) {
       datePublished: art.date,
       dateModified: art.updated,
       inLanguage: 'ko-KR',
+      ...(art.images?.length ? { image: art.images.map((x) => (x.startsWith('http') ? x : seo.site + x)) } : {}),
       mainEntityOfPage: canonical,
       url: canonical,
       author: { '@type': 'Person', name: '세이프픽스 대표', jobTitle: '대표', description: '애플 기기 수리 경력 10년, 외주 없이 직접 수리', worksFor: { '@id': seo.site + '/#business' } },

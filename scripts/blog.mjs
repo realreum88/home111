@@ -27,6 +27,7 @@ function markdown(src) {
   const out = [];
   const faq = [];
   const toc = [];
+  const images = [];
   let inFaq = false;
   let q = null;
   let i = 0;
@@ -72,6 +73,13 @@ function markdown(src) {
       if (q) q.a.push(items.map(plain).join(' '));
       continue;
     }
+    // 사진: ![설명](/images/posts/파일.webp)  — 설명은 대체 텍스트와 사진 아래 캡션으로 같이 들어가요
+    if ((m = l.match(/^!\[(.*?)\]\((\/[^\s)]+|https?:\/\/[^\s)]+)\)\s*$/))) {
+      out.push(`<figure><img src="${m[2]}" alt="${esc(m[1])}" loading="lazy" /><figcaption>${esc(m[1])}</figcaption></figure>`);
+      images.push(m[2]);
+      i++;
+      continue;
+    }
     if (l.startsWith('>')) {
       const buf = [];
       while (i < lines.length && lines[i].startsWith('>')) buf.push(lines[i++].replace(/^>\s?/, ''));
@@ -84,7 +92,7 @@ function markdown(src) {
     out.push(`<p>${inline(text)}</p>`);
     if (q) q.a.push(plain(text));
   }
-  return { html: out.join('\n'), faq: faq.filter((f) => f.a.length).map((f) => [f.q, f.a.join(' ')]), toc };
+  return { html: out.join('\n'), faq: faq.filter((f) => f.a.length).map((f) => [f.q, f.a.join(' ')]), toc, images };
 }
 
 function parse(file) {
@@ -101,7 +109,7 @@ function parse(file) {
   if (!svc) throw new Error(`${file}: service 는 services.json 의 id 중 하나예요 (${SERVICES.map((x) => x.id).join(', ')})`);
   if (!/^[a-z0-9-]+$/.test(meta.area)) throw new Error(`${file}: area 는 영문 소문자·숫자·- 만 써주세요 (예: sangdo)`);
   if (!/^[가-힣a-z0-9-]+$/.test(meta.slug)) throw new Error(`${file}: slug 는 한글·영문 소문자·숫자·- 만, 띄어쓰기 없이 써주세요`);
-  const { html, faq, toc } = markdown(m[2]);
+  const { html, faq, toc, images } = markdown(m[2]);
   return {
     slug: meta.slug,
     title: meta.title,
@@ -121,6 +129,7 @@ function parse(file) {
     html,
     faq,
     toc,
+    images,
   };
 }
 
