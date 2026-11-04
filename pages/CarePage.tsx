@@ -90,7 +90,7 @@ function GameScene({ kind, device }: { kind: Kind; device?: string }) {
   );
 }
 
-export default function CarePage({ kind = 'repair', device }: { kind?: Kind; device?: string }) {
+export default function CarePage({ kind = 'repair', device, extra }: { kind?: Kind; device?: string; extra?: React.ReactNode }) {
   const c = content[kind];
   const [selected, setSelected] = useState<number | null>(null);
   useEffect(() => setSelected(null), [kind, device]);
@@ -126,6 +126,7 @@ export default function CarePage({ kind = 'repair', device }: { kind?: Kind; dev
       </section>
 
       <div className="shell care-content">
+        {extra}
         <section>
           <div className="section-title">
             <div>

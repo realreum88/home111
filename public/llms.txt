@@ -18,6 +18,28 @@
 - [애플워치 수리](https://www.safefix.co.kr/services/watch): 화면, 뒷면 깨짐, 배터리
 - [택배 수리](https://www.safefix.co.kr/delivery): 전국 접수, 점검 후 비용 안내·동의 시 수리, 우체국 택배로 1~2일 내 반송, 택배비 편도 부담, 현금·계좌이체 결제
 
+## 수리 서비스 (수리 종류별 페이지)
+- [아이폰 액정수리](https://www.safefix.co.kr/services/iphone-screen): 화면 깨짐 · 터치 불량 · 화면 줄
+- [아이폰 뒷판수리](https://www.safefix.co.kr/services/iphone-back-glass): 뒷면 유리 깨짐
+- [아이폰 카메라수리](https://www.safefix.co.kr/services/iphone-camera): 렌즈 깨짐 · 초점 불량 · 카메라 안 켜짐
+- [아이폰 배터리교체](https://www.safefix.co.kr/services/iphone-battery): 빨리 닳음 · 갑자기 꺼짐
+- [아이폰 충전안됨](https://www.safefix.co.kr/services/iphone-not-charging): 충전 안 됨 · 케이블 인식 불량
+- [아이패드 액정수리](https://www.safefix.co.kr/services/ipad-screen): 화면 깨짐 · 터치 불량 · 펜슬 인식
+- [아이패드 침수수리](https://www.safefix.co.kr/services/ipad-water): 물 · 음료 침수
+- [아이패드 충전안됨](https://www.safefix.co.kr/services/ipad-not-charging): 충전 안 됨 · 충전 인식 오류
+- [아이패드 충전단자고장](https://www.safefix.co.kr/services/ipad-charging-port): 단자 흔들림 · 접촉 불량
+- [아이패드 전원버튼함몰](https://www.safefix.co.kr/services/ipad-power-button): 버튼 눌림 · 복구모드 반복
+- [아이패드 휘어짐](https://www.safefix.co.kr/services/ipad-bent): 본체 휨 · 프레임 변형
+- [아이패드 배터리교체](https://www.safefix.co.kr/services/ipad-battery): 빨리 닳음 · 갑자기 꺼짐
+- [아이패드 전원 안 켜짐](https://www.safefix.co.kr/services/ipad-no-power): 화면 안 켜짐 · 사과 무한로딩
+- [맥북 액정수리](https://www.safefix.co.kr/services/macbook-screen): 화면 깨짐 · 줄 · 얼룩
+- [맥북 배터리교체](https://www.safefix.co.kr/services/macbook-battery): 빨리 닳음 · 서비스 권장 표시
+- [맥북 키보드수리](https://www.safefix.co.kr/services/macbook-keyboard): 키 안 눌림 · 중복 입력
+- [맥북 단자수리](https://www.safefix.co.kr/services/macbook-port): 충전 단자 · USB-C 포트 불량
+- [애플워치 액정수리](https://www.safefix.co.kr/services/watch-screen): 화면 깨짐 · 터치 불량
+- [애플워치 뒷면수리](https://www.safefix.co.kr/services/watch-back): 뒷면 센서 유리 깨짐
+- [애플워치 배터리교체](https://www.safefix.co.kr/services/watch-battery): 빨리 닳음 · 배터리 부풂
+
 ## 수리 원칙
 - 리퍼(기기 교체) 대신 원래 기기를 그대로 고친다.
 - 기기 상태를 먼저 확인한 뒤 비용과 소요 시간을 안내하고, 고객이 동의한 경우에만 수리한다.
@@ -26,7 +48,9 @@
 - 무료 주차 가능.
 
 ## 더 보기
-- [수리 사례 (블로그·클립)](https://www.safefix.co.kr/cases)
+- [회사소개](https://www.safefix.co.kr/about)
+- [수리 사례](https://www.safefix.co.kr/cases)
+- [상담문의](https://www.safefix.co.kr/contact)
 - [매장 위치 안내](https://www.safefix.co.kr/locations)
 - [자주 묻는 질문](https://www.safefix.co.kr/faq)
 - 블로그: https://blog.naver.com/safefixx
