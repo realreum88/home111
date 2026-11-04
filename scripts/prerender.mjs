@@ -71,6 +71,31 @@ for (const post of blog) {
 }
 if (seo.pages['/cases']) seo.pages['/cases'].links = blog.map(link);
 const base = readFileSync(join(dist, 'index.html'), 'utf8');
+
+// 네이버 블로그 최신 글을 빌드 때 받아 HTML에 넣어요 (자바스크립트를 실행하지 않는 AI 크롤러도 블로그 수리기 링크를 읽도록)
+const strip = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim();
+const pick = (xml, tag) => {
+  const m = xml.match(new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)</' + tag + '>'));
+  return m ? m[1].replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '').trim() : '';
+};
+let blogPosts = [];
+try {
+  const r = await fetch('https://rss.blog.naver.com/safefixx.xml', { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SafefixSite/1.0)' }, signal: AbortSignal.timeout(8000) });
+  const xml = await r.text();
+  blogPosts = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 50).map(([, it]) => {
+    const desc = pick(it, 'description');
+    const text = strip(desc);
+    return { title: strip(pick(it, 'title')), link: pick(it, 'link').replace(/\?fromRss.*$/, ''), date: pick(it, 'pubDate'), image: (desc.match(/<img[^>]+src=["']([^"']+)["']/) || [])[1] || '', summary: text.length > 90 ? text.slice(0, 90) + '…' : text };
+  });
+  console.log('blog rss', blogPosts.length);
+} catch (e) {
+  console.log('blog rss skipped:', e.message);
+}
+globalThis.__SAFEFIX_BLOG__ = blogPosts;
+const { render: ssr } = await import(new URL('../dist-ssr/entry-server.js', import.meta.url).href);
+const blogScript = blogPosts.length ? `<script>window.__SAFEFIX_BLOG__=${JSON.stringify(blogPosts).replace(/</g, '\\u003c')}</script>` : '';
+const decode = (s) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#x27;|&#39;/g, "'");
+const textOf = (h) => decode(h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 const today = new Date().toISOString().slice(0, 10);
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -89,6 +114,7 @@ const nav = [
   ['/contact', '견적문의'],
 ];
 
+const collected = {};
 function render(path, page) {
   const canonical = seo.site + encodeURI(page.canonical || path);
   let html = base
@@ -101,8 +127,13 @@ function render(path, page) {
   if (page.sitemap === false && !page.canonical) {
     html = html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex,follow">');
   }
-  // 페이지별 구조화 데이터 (검색엔진·AI가 페이지 성격을 정확히 이해하도록)
-  const qa = path === '/faq' ? seo.faq : page.qa || [];
+  // 실제 화면을 HTML로 그려 넣어요
+  const app = ssr(path);
+  // 페이지별 구조화 데이터 (검색엔진·AI가 페이지 성격을 정확히 이해하도록) — 화면에 실제로 보이는 Q&A·진행 과정에서 뽑아요
+  const shownQa = [...app.matchAll(/<details[^>]*>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g)].map(([, q, a]) => [textOf(q).replace(/^Q\s*/, ''), textOf(a)]);
+  const qa = page.article ? page.qa || [] : shownQa.length ? shownQa : page.qa || [];
+  collected[path] = { qa: shownQa };
+  const steps = [...(app.match(/<ol class="step-cards">([\s\S]*?)<\/ol>/)?.[1] || '').matchAll(/<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)].map(([, n, d]) => [textOf(n), textOf(d)]);
   const ld = [];
   const crumbs = [{ name: '홈', url: seo.site + '/' }];
   if (path.startsWith('/services/')) crumbs.push({ name: '서비스', url: seo.site + '/services' });
@@ -142,21 +173,19 @@ function render(path, page) {
     });
     html = html.replace('<meta property="og:type" content="website">', '<meta property="og:type" content="article">');
   }
+  if (steps.length) {
+    ld.push({ '@context': 'https://schema.org', '@type': 'HowTo', name: (page.crumb && path !== '/' ? page.crumb : '세이프픽스 수리') + ' 진행 과정', inLanguage: 'ko-KR', step: steps.map(([n, d], i) => ({ '@type': 'HowToStep', position: i + 1, name: n, text: d })) });
+  }
+  if (path === '/') {
+    ld.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: '세이프픽스', alternateName: '세이프픽스 아이폰 아이패드수리 상도점', url: seo.site + '/', inLanguage: 'ko-KR', publisher: { '@id': seo.site + '/#business' } });
+  }
   if (qa.length) {
     ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: qa.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
   }
   const ldTags = ld.map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`).join('');
   html = html.replace('</head>', ldTags + '</head>');
-  const body = art
-    ? `<main data-prerender><article><h1>${esc(art.title)}</h1><p>${esc(art.description)}</p><p><time datetime="${art.date}">${art.date}</time> · 세이프픽스 대표</p>${art.html}</article>` +
-      `<nav><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul></nav></main>`
-    : `<main data-prerender><h1>${esc(page.h1)}</h1>` +
-    `<p>${esc(page.description)}</p>` +
-    (page.body.length ? `<ul>${page.body.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : '') +
-    (page.links?.length ? `<ul>${page.links.map(([h, t, d]) => `<li><a href="${encodeURI(h)}">${esc(t)}</a> — ${esc(d)}</li>`).join('')}</ul>` : '') +
-    (qa.length ? `<section><h2>자주 묻는 질문</h2>${qa.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('')}</section>` : '') +
-    `<nav><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul></nav></main>`;
-  html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+  const body = app;
+  html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`).replace('</head>', blogScript + '</head>');
   const out = path === '/' ? join(dist, 'index.html') : join(dist, path.slice(1), 'index.html');
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, html);
@@ -170,6 +199,44 @@ const urls = Object.entries(seo.pages)
   .join('\n');
 writeFileSync(join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 console.log('prerendered', Object.keys(seo.pages).length, 'pages');
+
+// llms.txt / llms-full.txt: ChatGPT·Perplexity·Claude 같은 AI가 사이트를 한 번에 이해하도록, 실제 사이트 데이터로 매번 새로 만들어요
+{
+  const REVIEWS = JSON.parse(readFileSync(join(root, 'reviews.json'), 'utf8'));
+  const S = seo.site;
+  const u = (p) => S + encodeURI(p);
+  const devName = LABEL;
+  const head = readFileSync(join(root, 'public', 'llms.txt'), 'utf8').split('\n## 수리 항목')[0].trim();
+  const lines = [head, ''];
+  lines.push('## 수리 서비스 (수리 종류별)');
+  for (const d of Object.keys(devName)) {
+    lines.push(`### ${devName[d]} 수리 — ${u('/services/' + d)}`);
+    for (const s of SERVICES.filter((x) => x.device === d)) lines.push(`- [${s.name}](${u('/services/' + s.id)}): ${s.short} · 무상 보증 ${s.warranty || '3개월'}`);
+  }
+  lines.push('', '## 수리 원칙', '- 외주 없이 대표가 상담부터 수리·출고 점검까지 직접 한다(수리 경력 10년).', '- 과잉진단 없이 꼭 필요한 수리만 안내한다. 점검 후 비용과 소요 시간을 먼저 안내하고, 동의한 경우에만 수리한다.', '- 리퍼(기기 교체) 대신 원래 기기를 다시 고친다.', '- 무상 보증: 아이패드 액정 1개월, 그 밖의 수리 3개월(고객 과실 제외).');
+  const ipadSteps = collected['/services/ipad-screen']?.steps || [];
+  if (ipadSteps.length) lines.push('', '## 아이패드 수리 진행 과정', ...ipadSteps.map(([n, d], i) => `${i + 1}. ${n} — ${d}`));
+  lines.push('', '## 접수 방법과 지역', '- 매장 방문: 중앙대·숭실대 도보 약 10분, 무료 주차.', '- 전국 택배: 택배비 편도 부담, 수리 후 우체국 택배로 보통 1~2일.', '- 퀵 접수: 퀵 비용은 손님 부담.', '- ' + REGION_LINE);
+  lines.push('', '## 신뢰 근거', `- 네이버 리뷰 평점 ${'4.97'} · 1,693개, 당근 이웃 후기 5.0 · 15개 (https://map.naver.com/p/entry/place/1604948429?placePath=%2Freview)`, '- 2025 동작구 ESG 민관협력 사업 공식 선정, 동작구와 "순환경제 모바일케어 플랫폼 × 세이프픽스"를 실제 실행한 첫 아이폰 수리점', '- 현대카드·포스코 임직원 전용 수리 혜택 협력 업체');
+  lines.push('', '## 실제 손님 후기 (네이버 리뷰 발췌)', ...REVIEWS.map((r) => `- ${r.service} (${r.name}, ★${r.score}): ${r.text.replace(/\s+/g, ' ').slice(0, 160)}${r.text.length > 160 ? '…' : ''}`));
+  const homeQa = collected['/']?.qa || [];
+  if (homeQa.length) lines.push('', '## 자주 묻는 질문', ...homeQa.map(([q, a]) => `- Q. ${q}\n  A. ${a}`));
+  if (blog.length) lines.push('', '## 홈페이지 수리 사례', ...blog.map((p) => `- [${p.title}](${u(p.path)}): ${p.description}`));
+  if (blogPosts.length) lines.push('', '## 블로그 수리기 (네이버 블로그, 최신순)', ...blogPosts.slice(0, 30).map((p) => `- [${p.title}](${p.link})`));
+  lines.push('', '## 주요 페이지', `- 회사소개: ${S}/about`, `- 서비스 전체: ${S}/services`, `- 수리사례: ${S}/cases`, `- 견적문의: ${S}/contact`, `- 택배수리: ${S}/delivery`, `- 매장 위치: ${S}/locations`, `- 자주 묻는 질문: ${S}/faq`, `- 전체 내용(상세): ${S}/llms-full.txt`);
+  writeFileSync(join(dist, 'llms.txt'), lines.join('\n') + '\n');
+  // 상세판: 서비스별 증상·확인 사항·진행 과정·Q&A 전부
+  const full = [lines.join('\n'), '', '# 서비스별 상세'];
+  for (const s of SERVICES) {
+    const c = collected['/services/' + s.id] || {};
+    full.push('', `## ${s.name} — ${u('/services/' + s.id)}`, `- 이런 증상: ${s.symptoms.join(' / ')}`);
+    if (s.points?.length) full.push(...s.points.map((x) => `- 수리하며 확인하는 것: ${x}`));
+    if (c.steps?.length) full.push(`- 진행 과정: ${c.steps.map(([n]) => n).join(' → ')}`);
+    if (c.qa?.length) full.push(...c.qa.map(([q, a]) => `- Q. ${q} A. ${a}`));
+  }
+  writeFileSync(join(dist, 'llms-full.txt'), full.join('\n') + '\n');
+  console.log('llms.txt', lines.length, 'lines / llms-full.txt', full.length, 'lines');
+}
 
 // IndexNow: 배포(프로덕션 빌드)마다 Bing·네이버 등 IndexNow 참여 검색엔진에 바뀐 페이지를 바로 알립니다.
 // (구글은 IndexNow를 지원하지 않아 서치콘솔에서 따로 요청해야 합니다.)

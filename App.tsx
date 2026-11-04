@@ -994,8 +994,10 @@ function FaqTabs({ items }: { items: Faq[] }) {
         ))}
       </div>
       <div className="faq-list">
-        {shown.map((f, i) => (
-          <details key={f.q} className="panel" open={i === 0}>
+        {items.map((f) => {
+          const i = all.indexOf(f);
+          return (
+          <details key={f.q} className="panel" open={i === 0} hidden={i < 0 || !shown.includes(f)}>
             <summary>
               <span className="q">Q</span>
               {f.q}
@@ -1003,7 +1005,8 @@ function FaqTabs({ items }: { items: Faq[] }) {
             </summary>
             <p>{f.a}</p>
           </details>
-        ))}
+          );
+        })}
       </div>
       {all.length > 3 && (
         <button className="faq-more-btn" aria-expanded={more} onClick={() => setMore(!more)}>
@@ -1043,13 +1046,11 @@ function ServiceArea({ name }: { name: string }) {
                 <em>{sub}</em>
               </span>
             </button>
-            {open === i && (
-              <ul>
-                {lines.map((l) => (
-                  <li key={l}>{l}</li>
-                ))}
-              </ul>
-            )}
+            <ul hidden={open !== i}>
+              {lines.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
@@ -1178,7 +1179,6 @@ const REGION_TEXT = REGIONS.map((r) => `${r.name}(${r.list.join('/')})`).join(',
 
 function Regions({ name }: { name: string }) {
   const [open, setOpen] = useState<string | null>('seoul');
-  const cur = REGIONS.find((r) => r.key === open);
   return (
     <div className="regions">
       <h3 className="regions-title">
@@ -1198,11 +1198,11 @@ function Regions({ name }: { name: string }) {
           </div>
         ))}
       </div>
-      {cur && (
-        <div className="panel region-detail">
-          <p className="region-how">
+      {REGIONS.map((cur) => (
+        <div key={cur.key} className="panel region-detail" hidden={open !== cur.key}>
+          <h4 className="region-how">
             <b>{cur.name}</b> 접수 방법: {cur.how}
-          </p>
+          </h4>
           <div className="region-chips">
             {cur.list.map((g) => {
               const hot = cur.hot?.[g];
@@ -1215,7 +1215,7 @@ function Regions({ name }: { name: string }) {
             })}
           </div>
         </div>
-      )}
+      ))}
       <p className="region-note">
         <Clock size={16} /> 지역별 지점이 아니에요. 상도동 매장 한 곳에서 대표가 직접 수리하고, 먼 곳은 택배(편도 택배비)·퀵(손님 부담)으로 맡기실 수 있어요.
       </p>
@@ -1244,7 +1244,7 @@ function ReviewSection({ device, initial = 3 }: { device?: string; initial?: num
   // 처음 보이는 3개 안에 아이패드 액정수리 후기를 항상 넣어요
   const pin = sorted.find((r) => r.service === '아이패드 액정수리');
   const all = pin && sorted.indexOf(pin) > 2 ? [...sorted.slice(0, 2).filter((r) => r !== pin), pin, ...sorted.slice(2).filter((r) => r !== pin)] : sorted;
-  const list = more ? all : all.slice(0, initial);
+  const list = all;
   return (
     <section className="full" id="reviews">
       <div className="stars" aria-hidden="true">
@@ -1268,7 +1268,7 @@ function ReviewSection({ device, initial = 3 }: { device?: string; initial?: num
       {list.length > 0 && (
         <div className="review-grid">
           {list.map((r, i) => (
-            <div key={i} className="panel review-item">
+            <div key={i} className="panel review-item" hidden={!more && i >= initial}>
               {r.image && <img src={r.image} alt="" loading="lazy" />}
               <div className="review-head">
                 <b>{r.name}</b>
@@ -1628,9 +1628,11 @@ function About() {
 type BlogPost = { title: string; link: string; date: string; image: string; summary: string };
 
 // 네이버 블로그 글을 한 번만 불러와 여러 화면에서 같이 씁니다.
+// 빌드 때 미리 받아 둔 블로그 글(검색봇·AI가 바로 읽을 수 있게 HTML에 포함)
+const PRELOADED_BLOG = (globalThis as { __SAFEFIX_BLOG__?: BlogPost[] }).__SAFEFIX_BLOG__;
 let blogCache: Promise<BlogPost[]> | null = null;
 function useBlog() {
-  const [posts, setPosts] = useState<BlogPost[] | null>(null);
+  const [posts, setPosts] = useState<BlogPost[] | null>(PRELOADED_BLOG?.length ? PRELOADED_BLOG : null);
   useEffect(() => {
     let alive = true;
     blogCache ||= fetch('/api/blog')
@@ -1962,7 +1964,7 @@ function Contact() {
   );
 }
 
-function Shell() {
+export function Shell() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     if (!hash) return;
