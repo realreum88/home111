@@ -1738,7 +1738,6 @@ function Cases() {
             {SVCS.map((s) => (
               <button key={s.id} role="tab" aria-selected={filter === s.id} className={filter === s.id ? 'chip on' : 'chip'} onClick={() => setFilter(s.id)}>
                 {s.name}
-                {count(s.id) > 0 && <small>{count(s.id)}</small>}
               </button>
             ))}
           </div>
