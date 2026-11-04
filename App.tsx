@@ -958,14 +958,16 @@ function Principles({ warranty }: { warranty?: string }) {
 
 function FaqTabs({ items }: { items: Faq[] }) {
   const [cat, setCat] = useState('전체');
+  const [more, setMore] = useState(false);
   const cats = ['전체', ...FAQ_CATS.filter((c) => items.some((f) => f.cat === c))];
-  const shown = cat === '전체' ? items : items.filter((f) => f.cat === cat);
+  const all = cat === '전체' ? items : items.filter((f) => f.cat === cat);
+  const shown = more ? all : all.slice(0, 3);
   return (
     <section className="full" id="faq">
       <SectionHead eyebrow="Q&A" title="가장 많이 물어보시는" accent="안심 Q&A" lead="궁금한 카테고리를 골라보세요." />
       <div className="faq-tabs" role="tablist">
         {cats.map((c) => (
-          <button key={c} role="tab" aria-selected={cat === c} className={cat === c ? 'on' : ''} onClick={() => setCat(c)}>
+          <button key={c} role="tab" aria-selected={cat === c} className={cat === c ? 'on' : ''} onClick={() => { setCat(c); setMore(false); }}>
             {c}
           </button>
         ))}
@@ -982,6 +984,11 @@ function FaqTabs({ items }: { items: Faq[] }) {
           </details>
         ))}
       </div>
+      {all.length > 3 && (
+        <button className="faq-more-btn" aria-expanded={more} onClick={() => setMore(!more)}>
+          {more ? '접기' : `질문 ${all.length - 3}개 더보기`} {more ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </button>
+      )}
       <div className="panel faq-cta">
         <b>💡 찾으시는 답변이 없으신가요?</b>
         <a className="button" href={STORE.tel}>
