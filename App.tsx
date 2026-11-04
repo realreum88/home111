@@ -423,6 +423,9 @@ function Home() {
               <span className="badge orange">2025 동작구</span>
               <h3>동작구 ESG 민관협력 업체 선정</h3>
               <p>2025년 동작구 ESG 민관협력 업체로 선정됐어요. 버리지 않고 고쳐 쓰는 수리로 동작구와 함께하고 있어요.</p>
+              <a className="esg-more" href="#esg" onClick={(e) => { e.preventDefault(); document.getElementById('esg')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+                실제 사업 증빙 보기 <ArrowRight size={18} />
+              </a>
             </div>
           </div>
           <div className="perk-grid">
@@ -442,6 +445,8 @@ function Home() {
             <GraduationCap size={22} /> 중앙대 · 숭실대 학생은 우대 혜택이 있어요. 학생증을 보여주세요!
           </p>
         </section>
+
+        <EsgSection />
 
         <section className="coupon">
           <div className="coupon-ticket">
@@ -1347,6 +1352,36 @@ function ToTop() {
   );
 }
 
+function EsgSection() {
+  return (
+    <section className="full esg" id="esg">
+      <SectionHead eyebrow="ESG · 2025 동작구" title="ESG, 말로만 하지 않았어요." accent="동작구와 실제로 했어요." lead="ESG를 말로만 하는 곳은 많아요. 세이프픽스는 구청과 함께 실제로 실행했어요." />
+      <div className="esg-body">
+        <a className="panel esg-proof" href="/images/esg-dongjak-2025.webp" target="_blank" rel="noopener" aria-label="동작구 ESG 민관협력 사업 안내물 크게 보기">
+          <img src="/images/esg-dongjak-2025.webp" alt="동작구 × 세이프픽스 순환경제 모바일케어 플랫폼 안내물" loading="lazy" />
+          <span className="esg-caption">▲ 2025 동작구 ESG 민관협력 사업 공식 선정 증빙 · 누르면 크게 보여요</span>
+        </a>
+        <div className="esg-points">
+          {[
+            ['01', '2025 동작구 ESG 민관협력 사업 공식 선정', '동작구와 함께 "순환경제 모바일케어 플랫폼 × 세이프픽스"를 만들었어요.'],
+            ['02', '아이폰 수리점 최초, 실제 사업까지 실행', '선정에서 끝나지 않고, 구 사업을 직접 실행한 첫 아이폰 수리점이에요.'],
+            ['03', '버리지 않고 고쳐 쓰는 수리', '리퍼(기기 교체) 대신 원래 기기를 다시 고쳐, 더 오래 쓰실 수 있게 해요.'],
+          ].map(([n, t, d]) => (
+            <div key={n} className="panel esg-point">
+              <span className="esg-no">{n}</span>
+              <div>
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </div>
+            </div>
+          ))}
+          <blockquote className="esg-quote">“새것보다 잘 고친 것의 가치를 믿습니다.”</blockquote>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ServicePage({ svc }: { svc: Svc }) {
   const posts = COLUMNS.filter((p) => p.service === svc.id);
   const areas = areasOf(svc.id);
@@ -1538,6 +1573,7 @@ function About() {
           </div>
         </section>
         <CeoCard />
+        <EsgSection />
         <ReviewSection />
         <Principles />
         <section className="full">
