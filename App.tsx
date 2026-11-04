@@ -1182,7 +1182,10 @@ function ReviewText({ text }: { text: string }) {
 }
 function ReviewSection({ device }: { device?: string }) {
   const [more, setMore] = useState(false);
-  const all = [...(REVIEWS as Review[])].sort((x, y) => Number(y.device === device) - Number(x.device === device));
+  const sorted = [...(REVIEWS as Review[])].sort((x, y) => Number(y.device === device) - Number(x.device === device));
+  // 처음 보이는 3개 안에 아이패드 액정수리 후기를 항상 넣어요
+  const pin = sorted.find((r) => r.service === '아이패드 액정수리');
+  const all = pin && sorted.indexOf(pin) > 2 ? [...sorted.slice(0, 2).filter((r) => r !== pin), pin, ...sorted.slice(2).filter((r) => r !== pin)] : sorted;
   const list = more ? all : all.slice(0, 3);
   return (
     <section className="full" id="reviews">
