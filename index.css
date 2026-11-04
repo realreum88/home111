@@ -853,3 +853,8 @@ form .button { justify-self: start; }
 }
 .faq-more-btn { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 18px auto 0; font: inherit; font-size: 17px; font-weight: 900; color: var(--navy); background: var(--white); border: 3px solid var(--navy); border-radius: 999px; padding: 12px 28px; box-shadow: 3px 3px 0 var(--navy); cursor: pointer; }
 .faq-more-btn:hover { background: var(--yellow); }
+.review-item { padding: 18px; }
+.review-item img { aspect-ratio: 16 / 10; object-fit: cover; }
+.review-head b { font-size: 17px; }
+.review-text.clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.review-toggle { justify-self: start; font: inherit; font-size: 15px; font-weight: 800; color: var(--sub); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }

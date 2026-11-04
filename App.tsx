@@ -1165,9 +1165,25 @@ function Regions({ name }: { name: string }) {
   );
 }
 
-type Review = { name: string; source: string; service?: string; score?: string; text: string; tags?: string[]; image?: string };
-function ReviewSection() {
-  const list = REVIEWS as Review[];
+type Review = { name: string; source: string; device?: string; service?: string; score?: string; text: string; tags?: string[]; image?: string };
+function ReviewText({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > 110;
+  return (
+    <>
+      <p className={'review-text' + (long && !open ? ' clamp' : '')}>{text}</p>
+      {long && (
+        <button className="review-toggle" onClick={() => setOpen(!open)}>
+          {open ? '접기' : '전체 보기'}
+        </button>
+      )}
+    </>
+  );
+}
+function ReviewSection({ device }: { device?: string }) {
+  const [more, setMore] = useState(false);
+  const all = [...(REVIEWS as Review[])].sort((x, y) => Number(y.device === device) - Number(x.device === device));
+  const list = more ? all : all.slice(0, 3);
   return (
     <section className="full" id="reviews">
       <div className="stars" aria-hidden="true">
@@ -1202,7 +1218,7 @@ function ReviewSection() {
                   {r.service} {r.score && <span>★ {r.score}</span>}
                 </p>
               )}
-              <p className="review-text">{r.text}</p>
+              <ReviewText text={r.text} />
               {r.tags && (
                 <div className="review-tags">
                   {r.tags.map((t) => (
@@ -1213,6 +1229,11 @@ function ReviewSection() {
             </div>
           ))}
         </div>
+      )}
+      {all.length > 3 && (
+        <button className="faq-more-btn" aria-expanded={more} onClick={() => setMore(!more)}>
+          {more ? '접기' : `후기 ${all.length - 3}개 더보기`} {more ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </button>
       )}
       <div className="delivery-actions bridge-more">
         <ExtLink className="button" href={STORE.naverReview}>
@@ -1317,7 +1338,7 @@ function ServicePage({ svc }: { svc: Svc }) {
 
         <ServiceBlog svc={svc} />
 
-        <ReviewSection />
+        <ReviewSection device={svc.device} />
 
         <CeoCard />
 
@@ -1476,6 +1497,7 @@ function About() {
           </div>
         </section>
         <CeoCard />
+        <ReviewSection />
         <Principles />
         <section className="full">
           <SectionTitle badge="SERVICE" title="수리 서비스" to="/services" label="서비스 전체" />
