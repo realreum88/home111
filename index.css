@@ -976,3 +976,5 @@ form .button { justify-self: start; }
 }
 @media (max-width: 900px) { .nav-close { flex: 0 0 auto; padding: 0; min-height: 56px; aspect-ratio: 1; margin-bottom: 8px; } }
 [hidden] { display: none !important; }
+.article-more { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 28px; padding: 18px 20px; background: var(--cream2); border: 3px solid var(--navy); border-radius: 16px; }
+.article-more b { width: 100%; font-size: 17px; }

@@ -691,7 +691,7 @@ function Locations() {
   );
 }
 
-type Column = { slug: string; title: string; description: string; date: string; updated: string; service: string; serviceName: string; device: string; area: string; areaName: string; path: string; html: string; faq: [string, string][]; toc: string[] };
+type Column = { naver?: string; tistory?: string; question?: string; slug: string; title: string; description: string; date: string; updated: string; service: string; serviceName: string; device: string; area: string; areaName: string; path: string; html: string; faq: [string, string][]; toc: string[] };
 type Svc = { id: string; device: string; name: string; short: string; symptoms: string[]; points?: string[]; warranty?: string };
 const COLUMNS = BLOG as unknown as Column[];
 const SVCS = SERVICES as Svc[];
@@ -1547,6 +1547,21 @@ function PostPage() {
           </p>
         </header>
         <div className="article-body" dangerouslySetInnerHTML={{ __html: post.html }} />
+        {(post.naver || post.tistory) && (
+          <div className="article-more">
+            <b>이 사례, 사진으로 더 자세히 보기</b>
+            {post.naver && (
+              <ExtLink href={post.naver} className="pill-link">
+                <NaverBadge /> 네이버 블로그 수리기 <ExternalLink size={16} />
+              </ExtLink>
+            )}
+            {post.tistory && (
+              <ExtLink href={post.tistory} className="pill-link">
+                티스토리 정리글 <ExternalLink size={16} />
+              </ExtLink>
+            )}
+          </div>
+        )}
         <p className="article-note">이 글은 대표가 직접 수리하며 확인한 내용을 AI의 도움을 받아 정리하고, 대표가 검수했어요.</p>
       </article>
       <CtaPanel title="내 기기도 한번 봐야 할까요?" text="증상만 알려주셔도 점검이 필요한지 먼저 말씀드려요. 점검 후 비용을 안내드리고, 동의하신 경우에만 수리해요." extra={<Link className="button" to={`/services/${post.service}`}>{post.serviceName} 안내 보기</Link>} />

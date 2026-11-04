@@ -115,6 +115,9 @@ function parse(file) {
     areaName: meta.areaName,
     path: `/services/${svc.id}/${meta.area}/${meta.slug}`,
     draft: meta.draft === 'true',
+    question: meta.question || '',
+    naver: meta.naver || '',
+    tistory: meta.tistory || '',
     html,
     faq,
     toc,
@@ -130,6 +133,16 @@ const paths = new Set();
 for (const p of live) {
   if (paths.has(p.path)) throw new Error(`주소 중복: ${p.path}`);
   paths.add(p.path);
+}
+// 질문 은행(content/questions.json)과 연결: 글의 question 번호가 실제로 있는지 확인하고, 진행 현황을 보여줘요
+const qPath = join(root, 'content', 'questions.json');
+if (existsSync(qPath)) {
+  const qs = JSON.parse(readFileSync(qPath, 'utf8'));
+  const ids = new Set(qs.map((q) => q.id));
+  for (const p of posts) if (p.question && !ids.has(p.question)) throw new Error(`${p.slug}: question ${p.question} 이 질문 은행에 없어요`);
+  const done = new Set(live.filter((p) => p.question).map((p) => p.question));
+  const draft = new Set(posts.filter((p) => p.draft && p.question).map((p) => p.question));
+  console.log(`질문 은행 ${qs.length}개 · 게시 ${done.size} · 초안 ${draft.size} · 남은 질문 ${qs.length - done.size - draft.size}`);
 }
 writeFileSync(join(root, 'blog.generated.json'), JSON.stringify(live, null, 1));
 console.log('blog', live.length, 'posts', posts.length - live.length ? `(${posts.length - live.length} draft 제외)` : '');
