@@ -907,3 +907,19 @@ form .button { justify-self: start; }
   .region-detail { padding: 18px 16px; }
   .region-chip { font-size: 15px; padding: 7px 12px; }
 }
+/* 홈 상담 배너 */
+.consult-band { display: grid; grid-template-columns: 150px 1fr auto; align-items: center; gap: 28px; padding: 26px 36px; background: var(--cream2); transition: transform 0.12s, box-shadow 0.12s; }
+.consult-band:hover { transform: translate(-3px, -3px); box-shadow: 10px 10px 0 var(--orange); }
+.consult-band-chr { width: 150px; }
+.consult-band-txt h3 { margin: 10px 0 6px; font-size: 32px; font-weight: 900; word-break: keep-all; }
+.consult-band-txt p { margin: 0; font-size: 19px; font-weight: 600; color: var(--sub); word-break: keep-all; line-height: 1.6; }
+.consult-band-btn { white-space: nowrap; }
+@media (max-width: 900px) {
+  .consult-band { grid-template-columns: 1fr; text-align: center; justify-items: center; gap: 12px; padding: 24px 20px; }
+  .consult-band-chr { width: 120px; }
+  .consult-band-txt h3 { font-size: 26px; }
+  .consult-band-txt p { font-size: 17px; }
+}
+#reviews .review-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; }
+#reviews .review-grid .review-item { flex: 0 1 calc((100% - 40px) / 3); }
+@media (max-width: 900px) { #reviews .review-grid .review-item { flex-basis: 100%; } }

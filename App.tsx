@@ -467,52 +467,20 @@ function Home() {
           <LocationCard />
         </section>
 
-        <section className="review-grid" id="reviews">
-          <div className="panel review-card">
-            <span className="badge">REAL REVIEW</span>
-            <div className="review-scores">
-              <div className="review-score-row">
-                <NaverBadge />
-                <span className="rs-name">네이버 리뷰</span>
-                <Star size={24} fill="#FFC93C" strokeWidth={2.4} />
-                <b>{STORE.reviews.naver.score}</b>
-                <span className="rs-count">리뷰 {STORE.reviews.naver.count}개</span>
-              </div>
-              <div className="review-score-row">
-                <DaangnBadge />
-                <span className="rs-name">당근 이웃 후기</span>
-                <Star size={24} fill="#FFC93C" strokeWidth={2.4} />
-                <b>{STORE.reviews.daangn.score}</b>
-                <span className="rs-count">후기 {STORE.reviews.daangn.count}개</span>
-              </div>
-            </div>
-            <h3>
-              네이버 리뷰 {STORE.reviews.naver.count}개, 평점 {STORE.reviews.naver.score}
-            </h3>
-            <p>당근 이웃 후기 {STORE.reviews.daangn.count}개도 모두 별 다섯 개예요. 배터리 교체, 아이패드 액정·프레임 수리 등 실제 고객 후기를 확인해보세요.</p>
-            <div className="review-links">
-              <ExtLink href={STORE.naverReview} className="pill-link">
-                <NaverBadge /> 네이버 리뷰 보기 <ExternalLink size={16} />
-              </ExtLink>
-              <ExtLink href={STORE.daangn} className="pill-link">
-                <DaangnBadge /> 당근 후기 보기 <ExternalLink size={16} />
-              </ExtLink>
-            </div>
+        <ReviewSection initial={5} />
+        <Link className="panel consult-band" to={{ pathname: '/', hash: '#request' }}>
+          <div className="consult-band-chr">
+            <Character kind="tablet" pose="point" mood="happy" />
           </div>
-          <Link className="panel consult-card" to="/contact">
-            <div className="consult-chr">
-              <Character kind="tablet" pose="point" mood="happy" />
-            </div>
-            <div>
-              <span className="badge orange">LET'S TALK</span>
-              <h3>어디가 불편한가요?</h3>
-              <p>모델과 증상을 미리 정리하면 상담이 훨씬 빨라져요.</p>
-              <strong>
-                상담 준비하기 <ArrowRight size={20} />
-              </strong>
-            </div>
-          </Link>
-        </section>
+          <div className="consult-band-txt">
+            <span className="badge orange">LET'S TALK</span>
+            <h3>어디가 불편한가요?</h3>
+            <p>모델과 증상만 알려주시면 점검이 필요한지 먼저 말씀드려요.</p>
+          </div>
+          <span className="button consult-band-btn">
+            상담 신청하기 <ArrowRight size={20} />
+          </span>
+        </Link>
 
         <section className="notice-wrap">
           <SectionTitle badge="NOTICE" title="공지사항" to="/faq" label="자주 묻는 질문" />
@@ -1249,13 +1217,13 @@ function ReviewText({ text }: { text: string }) {
     </>
   );
 }
-function ReviewSection({ device }: { device?: string }) {
+function ReviewSection({ device, initial = 3 }: { device?: string; initial?: number }) {
   const [more, setMore] = useState(false);
   const sorted = [...(REVIEWS as Review[])].sort((x, y) => Number(y.device === device) - Number(x.device === device));
   // 처음 보이는 3개 안에 아이패드 액정수리 후기를 항상 넣어요
   const pin = sorted.find((r) => r.service === '아이패드 액정수리');
   const all = pin && sorted.indexOf(pin) > 2 ? [...sorted.slice(0, 2).filter((r) => r !== pin), pin, ...sorted.slice(2).filter((r) => r !== pin)] : sorted;
-  const list = more ? all : all.slice(0, 3);
+  const list = more ? all : all.slice(0, initial);
   return (
     <section className="full" id="reviews">
       <div className="stars" aria-hidden="true">
@@ -1302,9 +1270,9 @@ function ReviewSection({ device }: { device?: string }) {
           ))}
         </div>
       )}
-      {all.length > 3 && (
+      {all.length > initial && (
         <button className="faq-more-btn" aria-expanded={more} onClick={() => setMore(!more)}>
-          {more ? '접기' : `후기 ${all.length - 3}개 더보기`} {more ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {more ? '접기' : `후기 ${all.length - initial}개 더보기`} {more ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
       )}
       <div className="delivery-actions bridge-more">
