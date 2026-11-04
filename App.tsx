@@ -1043,7 +1043,17 @@ const DEVICE_WORDS: Record<string, string[]> = { iphone: ['아이폰', 'iphone']
 // 블로그 글 제목으로 어떤 서비스 글인지 분류해요 (기기 이름 + 수리 키워드)
 function blogService(title: string): Svc | undefined {
   const t = title.toLowerCase();
-  return SVCS.find((s) => DEVICE_WORDS[s.device].some((w) => t.includes(w)) && (s as Svc & { keywords?: string[] }).keywords?.some((k) => t.includes(k.toLowerCase())));
+  let best: Svc | undefined;
+  let top = 0;
+  for (const s of SVCS as (Svc & { keywords?: string[] })[]) {
+    if (!DEVICE_WORDS[s.device].some((w) => t.includes(w))) continue;
+    const score = (s.keywords || []).reduce((n, k) => n + (t.includes(k.toLowerCase()) ? k.length : 0), 0);
+    if (score > top) {
+      top = score;
+      best = s;
+    }
+  }
+  return best;
 }
 function blogDevice(title: string) {
   const t = title.toLowerCase();
