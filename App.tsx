@@ -34,6 +34,7 @@ import { DEVICES, deviceById } from './devices';
 import SEO from './seo.json';
 import BLOG from './blog.generated.json';
 import SERVICES from './services.json';
+import ABOUT from './about.json';
 import { STORE } from './store';
 
 
@@ -796,6 +797,303 @@ function FaqList({ items }: { items: [string, string][] }) {
   );
 }
 
+// ===== 서비스 페이지 공통 섹션 (참고: 대표 소개 · 정밀 프로세스 · 비용 기준 · 3대 원칙 · 카테고리 Q&A · 지역 안내 · 상담 신청) =====
+type Faq = { cat: string; q: string; a: string };
+const FAQ_CATS = ['예약 & 비용', '수리 과정', '보증 & 사후 관리', '방문 & 택배', '특수 상황'];
+function faqItems(s?: Svc): Faq[] {
+  const w = s ? warrantyOf(s) : '';
+  const name = s ? s.name : '수리';
+  return [
+    { cat: '예약 & 비용', q: `${name} 비용은 어떻게 정해지나요?`, a: '모델과 증상에 따라 작업 범위가 달라져요. 기기 상태를 먼저 확인한 뒤 비용과 소요 시간을 안내하고, 동의하신 경우에만 수리해요.' },
+    { cat: '예약 & 비용', q: '예약하고 가야 하나요?', a: `${STORE.hours} 운영하고, 일요일·공휴일은 예약제예요. 방문 전에 전화나 네이버 톡톡으로 미리 연락 주시면 기다리지 않으셔도 돼요.` },
+    { cat: '수리 과정', q: '필요 없는 수리까지 권하지 않나요?', a: '과잉진단 없이 꼭 필요한 수리만 안내해요. 점검 결과와 비용을 먼저 설명드리고, 동의하신 경우에만 수리해요.' },
+    { cat: '수리 과정', q: '외주로 보내지 않나요?', a: '외주 없이 대표가 상담부터 수리, 출고 점검까지 직접 해요.' },
+    ...(s?.points?.length ? [{ cat: '수리 과정', q: `${s.name}, 수리할 때 무엇을 확인하나요?`, a: s.points.join(' ') }] : []),
+    { cat: '보증 & 사후 관리', q: `${name} 후 보증이 있나요?`, a: s ? `네, 수리 후 ${w} 동안 같은 증상이 다시 나타나면 무상으로 봐드려요. 떨어뜨리거나 물에 빠뜨린 경우처럼 고객 과실은 제외돼요.` : '수리 후 같은 증상이 다시 나타나면 무상으로 봐드려요. 아이패드 액정 교체는 1개월, 그 밖의 수리는 3개월이에요(고객 과실 제외).' },
+    { cat: '보증 & 사후 관리', q: '방문 전에 무엇을 준비하나요?', a: '기기 모델명, 증상, 이전 수리 이력을 알려주세요. 가능하다면 중요한 데이터를 미리 백업해주세요.' },
+    { cat: '방문 & 택배', q: '중앙대·숭실대에서 가까운가요?', a: '네, 중앙대와 숭실대 모두 걸어서 약 10분 거리예요. 방문 전에 연락 주시면 기다리지 않으셔도 돼요.' },
+    { cat: '방문 & 택배', q: '어디에 있나요? 주차되나요?', a: `${STORE.address} ${STORE.addressDetail}에 있어요. 중앙대·숭실대에서 걸어서 약 10분이고, 무료 주차가 가능해요.` },
+    { cat: '방문 & 택배', q: '멀리 있어도 맡길 수 있나요?', a: '네, 전국 택배 수리와 퀵 접수가 가능해요. 점검 후 비용을 안내하고 동의하시면 수리해서 우체국 택배로 보내드려요. 보통 1~2일 걸려요.' },
+    { cat: '특수 상황', q: '침수되거나 전원이 안 켜지면 어떻게 하나요?', a: '충전과 반복적인 전원 켜기를 피하고 그대로 가져와 주세요. 상태를 점검한 뒤 가능 여부를 안내해드려요.' },
+    { cat: '특수 상황', q: '해외여행 중에 기기가 파손됐어요.', a: '여행자 보험 청구에 필요한 견적서, 영수증, 수리 사진 등을 준비해드려요. 상담할 때 보험 청구 예정이라고 말씀해주세요.' },
+  ];
+}
+
+function SectionHead({ eyebrow, title, accent, lead }: { eyebrow: string; title: React.ReactNode; accent?: string; lead?: string }) {
+  return (
+    <div className="sec-head">
+      <span className="sec-eyebrow">{eyebrow}</span>
+      <h2>
+        {title} {accent && <mark>{accent}</mark>}
+      </h2>
+      {lead && <p>{lead}</p>}
+    </div>
+  );
+}
+
+function CeoCard() {
+  const c = ABOUT as { ceoName: string; greeting: string[]; photo: string; photoCaption: string };
+  if (!c.greeting.length) return null;
+  return (
+    <section className="full">
+      <div className="panel ceo">
+        <div className="ceo-text">
+          <h2>
+            세이프픽스 대표 {c.ceoName && <mark>{c.ceoName}</mark>}입니다.
+          </h2>
+          <div className="ceo-msg">
+            {c.greeting.map((l, i) => (l ? <p key={i}>{l}</p> : <br key={i} />))}
+          </div>
+        </div>
+        {c.photo && (
+          <figure className="ceo-photo">
+            <img src={c.photo} alt={`세이프픽스 대표${c.ceoName ? ' ' + c.ceoName : ''}`} loading="lazy" />
+            <figcaption>{c.photoCaption}</figcaption>
+          </figure>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function StepCards({ title, accent, lead, steps }: { title: string; accent: string; lead: string; steps: [string, string][] }) {
+  return (
+    <section className="full">
+      <SectionHead eyebrow="PROCESS" title={title} accent={accent} lead={lead} />
+      <ol className="step-cards">
+        {steps.map(([t, d], i) => (
+          <li key={t} className="panel">
+            <div className="step-top">
+              <span className="step-pill">STEP {String(i + 1).padStart(2, '0')}</span>
+              <span className="step-check">
+                <Check size={20} strokeWidth={3} />
+              </span>
+            </div>
+            <h3>{t}</h3>
+            <p>{d}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function CostBasis({ name }: { name: string }) {
+  const left: [string, string][] = [
+    ['기기 모델', '같은 수리라도 모델마다 부품과 작업 방법이 달라요.'],
+    ['증상과 손상 범위', '어디까지 손상됐는지, 다른 부품까지 영향이 갔는지 확인해요.'],
+    ['부품 종류', '어떤 부품을 쓰는지 미리 설명드리고, 눈으로 확인하실 수 있게 보여드려요.'],
+  ];
+  const right = ['기기 모델명 (설정 › 일반 › 정보에서 확인할 수 있어요)', '언제부터 어떤 증상이 생겼는지, 떨어뜨림·침수 여부', '이전에 다른 곳에서 수리한 이력', '중요한 데이터 백업 여부'];
+  return (
+    <section className="full">
+      <SectionHead eyebrow="BEFORE REPAIR" title={`${name},`} accent="비용을 정하는 기준" lead="점검 후 비용을 먼저 안내드리고, 동의하신 경우에만 수리해요." />
+      <div className="panel basis">
+        <div className="basis-col">
+          <h3>비용을 확인할 때 보는 항목</h3>
+          {left.map(([t, d]) => (
+            <div key={t} className="basis-item">
+              <h4>{t}</h4>
+              <p>{d}</p>
+            </div>
+          ))}
+        </div>
+        <div className="basis-col alt">
+          <h3>상담할 때 함께 알려 주세요</h3>
+          <ul>
+            {right.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Principles({ warranty }: { warranty?: string }) {
+  const items: [React.ReactNode, string, string[]][] = [
+    [<Wrench size={30} />, '대표 직접 수리', ['외주로 기기를 넘기는 일은 없어요.', '상담부터 수리, 출고 점검까지 대표가 직접 해요.']],
+    [<FileText size={30} />, '동의한 수리만', ['과잉진단 없이 꼭 필요한 수리만 안내해요.', '점검 후 비용을 먼저 말씀드리고, 동의하신 경우에만 수리해요.']],
+    [<ShieldCheck size={30} />, '수리 후 무상 보증', [warranty ? `수리 후 ${warranty} 동안 같은 증상이 생기면 무상으로 봐드려요.` : '아이패드 액정 1개월, 그 밖의 수리 3개월 무상 보증.', '고객 과실(낙하·침수)은 제외돼요.']],
+  ];
+  return (
+    <section className="full">
+      <SectionHead eyebrow="PROMISE" title="세이프픽스가 약속하는" accent="3대 수리 원칙" />
+      <div className="principles">
+        {items.map(([ic, t, ds], i) => (
+          <div key={t} className={'panel principle' + (i === 1 ? ' hi' : '')}>
+            <span className="principle-ic">{ic}</span>
+            <h3>{t}</h3>
+            {ds.map((d) => (
+              <p key={d}>{d}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+      <p className="principle-proof">
+        <Star size={18} /> 네이버 리뷰 평점 {STORE.reviews.naver.score} · {STORE.reviews.naver.count}개 · 당근 이웃 후기 {STORE.reviews.daangn.score}
+      </p>
+    </section>
+  );
+}
+
+function FaqTabs({ items }: { items: Faq[] }) {
+  const [cat, setCat] = useState('전체');
+  const cats = ['전체', ...FAQ_CATS.filter((c) => items.some((f) => f.cat === c))];
+  const shown = cat === '전체' ? items : items.filter((f) => f.cat === cat);
+  return (
+    <section className="full">
+      <SectionHead eyebrow="Q&A" title="가장 많이 물어보시는" accent="안심 Q&A" lead="궁금한 카테고리를 골라보세요." />
+      <div className="faq-tabs" role="tablist">
+        {cats.map((c) => (
+          <button key={c} role="tab" aria-selected={cat === c} className={cat === c ? 'on' : ''} onClick={() => setCat(c)}>
+            {c}
+          </button>
+        ))}
+      </div>
+      <div className="faq-list">
+        {shown.map((f, i) => (
+          <details key={f.q} className="panel" open={i === 0}>
+            <summary>
+              <span className="q">Q</span>
+              {f.q}
+              <Plus size={24} strokeWidth={3} />
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+      <div className="panel faq-cta">
+        <b>💡 찾으시는 답변이 없으신가요?</b>
+        <a className="button" href={STORE.tel}>
+          <Phone size={18} /> 전화로 물어보기
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function ServiceArea({ name }: { name: string }) {
+  const cards: [string, string, string, React.ReactNode, string[]][] = [
+    ['VISIT', '매장 방문', '중앙대·숭실대 도보 10분', <MapPin size={34} />, [`${STORE.address} ${STORE.addressDetail}`, '무료 주차 가능', `영업 ${STORE.hours} (${STORE.hoursNote})`]],
+    ['DELIVERY', '전국 택배', '우체국 택배로 1~2일', <Truck size={34} />, ['먼저 연락 주시면 포장·접수 방법을 알려드려요.', '점검 후 비용 안내, 동의하시면 수리해요.', '수리 후 우체국 택배로 보내드려요.']],
+    ['QUICK', '퀵 접수', '급하실 때', <Zap size={34} />, ['퀵으로도 접수할 수 있어요.', '보내시기 전에 먼저 연락 주세요.']],
+  ];
+  const [open, setOpen] = useState<number | null>(null);
+  return (
+    <section className="full">
+      <SectionHead eyebrow="SERVICE AREA" title={`${name},`} accent="어디서든 맡기세요" lead="방법을 누르면 자세한 안내가 펼쳐져요." />
+      <div className="area-cards">
+        {cards.map(([en, t, sub, ic, lines], i) => (
+          <div key={t} className={'panel area-card' + (open === i ? ' on' : '')}>
+            <button aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>
+              <span className="area-ic">{ic}</span>
+              <span className="area-txt">
+                <small>{en}</small>
+                <b>
+                  {t} <ChevronDown size={22} />
+                </b>
+                <em>{sub}</em>
+              </span>
+            </button>
+            {open === i && (
+              <ul>
+                {lines.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="muted area-note">
+        <Link to="/delivery">택배 수리 자세히 보기 →</Link>
+      </p>
+    </section>
+  );
+}
+
+function RequestForm({ service }: { service?: string }) {
+  const [f, setF] = useState({ model: '', symptom: '', way: '매장 방문', date: '', memo: '' });
+  const [msg, setMsg] = useState('');
+  const [note, setNote] = useState('');
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
+  const text = `[세이프픽스 수리 상담]\n수리: ${service || '-'}\n모델: ${f.model}\n증상: ${f.symptom}\n접수 방법: ${f.way}\n희망 일정: ${f.date || '-'}\n요청사항: ${f.memo || '-'}`;
+  const sms = `sms:${STORE.phone.replace(/-/g, '')}${/iPhone|iPad|Mac/.test(typeof navigator === 'undefined' ? '' : navigator.userAgent) ? '&' : '?'}body=${encodeURIComponent(msg)}`;
+  return (
+    <section className="full">
+      <div className="request">
+        <h2>
+          {service || '수리'}
+          <br />
+          상담 신청
+        </h2>
+        <p>모델과 증상만 적어주시면 점검이 필요한지 먼저 말씀드려요.</p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setMsg(text);
+            setNote('');
+          }}
+        >
+          <label>
+            기기 모델 <i>*</i>
+            <input required value={f.model} onChange={set('model')} placeholder="예: 아이패드 에어 5, 아이폰 15 프로" />
+          </label>
+          <label>
+            접수 방법
+            <select value={f.way} onChange={set('way')}>
+              <option>매장 방문</option>
+              <option>택배 접수</option>
+              <option>퀵 접수</option>
+            </select>
+          </label>
+          <label className="wide">
+            증상 <i>*</i>
+            <textarea required rows={3} value={f.symptom} onChange={set('symptom')} placeholder="예: 떨어뜨린 뒤 화면 아래쪽 터치가 안 돼요" />
+          </label>
+          <label>
+            희망 일정
+            <input value={f.date} onChange={set('date')} placeholder="예: 이번 주 토요일 오후" />
+          </label>
+          <label>
+            추가 요청사항
+            <input value={f.memo} onChange={set('memo')} placeholder="예: 데이터 꼭 살려야 해요, 보험 서류 필요" />
+          </label>
+          <button className="button wide">▶ 상담 내용 만들기</button>
+        </form>
+        {msg && (
+          <div className="request-out" role="status">
+            <pre>{msg}</pre>
+            <div className="delivery-actions">
+              <a className="button" href={sms}>
+                <MessageCircle size={18} /> 문자로 보내기
+              </a>
+              <button
+                className="button ghost-dark"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(msg);
+                    setNote('복사했어요. 카카오톡 채팅창에 붙여넣어 주세요.');
+                  } catch {
+                    setNote('내용을 길게 눌러 복사해주세요.');
+                  }
+                  window.open(STORE.kakaoChat, '_blank', 'noopener');
+                }}
+              >
+                <KakaoBubble size={18} /> 카카오톡으로 보내기
+              </button>
+            </div>
+            {note && <p>{note}</p>}
+          </div>
+        )}
+        <p className="request-note">입력한 내용은 이 화면에서만 정리되고, 버튼을 누르셔야 세이프픽스로 전달돼요.</p>
+      </div>
+    </section>
+  );
+}
+
 function ServicePage({ svc }: { svc: Svc }) {
   const posts = COLUMNS.filter((p) => p.service === svc.id);
   const areas = areasOf(svc.id);
@@ -808,19 +1106,30 @@ function ServicePage({ svc }: { svc: Svc }) {
         <Crumbs items={[['홈', '/'], ['서비스', '/services'], [label, '/services/' + svc.device], [svc.name]]} />
 
         <section className="full">
-          <SectionTitle badge="CHECK" title={<>{svc.name}, 이런 증상이면 확인해 보세요</>} />
+          <SectionHead eyebrow="CHECK" title={`${svc.name},`} accent="내 기기 먼저 확인해 보세요" lead="이런 증상이 하나라도 있다면 점검을 받아보세요." />
           <div className="symptom-list">
             {svc.symptoms.map((t) => (
               <div key={t} className="panel symptom-row">
-                <Check size={20} /> {t}
+                <Check size={22} strokeWidth={3} /> {t}
               </div>
             ))}
           </div>
         </section>
 
+        {posts.length > 0 && (
+          <section className="full">
+            <SectionHead eyebrow="REAL CASES" title={svc.name} accent="실제 수리 사례" />
+            <PostCards posts={posts} />
+          </section>
+        )}
+
+        <ServiceBlog svc={svc} />
+
+        <CeoCard />
+
         {svc.points && svc.points.length > 0 && (
           <section className="full">
-            <SectionTitle badge="REPAIR NOTE" title={<>{svc.name}, 수리하면서 확인하는 것</>} />
+            <SectionHead eyebrow="REPAIR NOTE" title={`${svc.name},`} accent="수리하면서 꼭 확인하는 것" />
             <div className="panel note-box">
               <ul>
                 {svc.points.map((t) => (
@@ -831,49 +1140,19 @@ function ServicePage({ svc }: { svc: Svc }) {
           </section>
         )}
 
-        {posts.length > 0 && (
-          <section className="full">
-            <SectionTitle badge="REAL CASES" title={<>{svc.name} 실제 수리 사례</>} to="/cases" label="전체 수리사례" />
-            <PostCards posts={posts} />
-          </section>
-        )}
+        <StepCards title={svc.name} accent="진행 과정" lead="연락부터 출고 점검까지, 이 순서로 진행해요." steps={STEPS} />
 
-        <ServiceBlog svc={svc} />
+        <CostBasis name={svc.name} />
 
-        <section className="full">
-          <SectionTitle badge="PROCESS" title={<>{svc.name} 진행 과정</>} />
-          <ol className="step-row">
-            {STEPS.map(([t, d], i) => (
-              <li key={t} className="panel">
-                <span className="j-no">{String(i + 1).padStart(2, '0')}</span>
-                <h3>{t}</h3>
-                <p>{d}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+        <Principles warranty={warrantyOf(svc)} />
 
-        <section className="full">
-          <SectionTitle badge="PROMISE" title="세이프픽스가 약속하는 것" />
-          <div className="promise-grid">
-            {[
-              ['대표 직접 수리', '상담부터 수리까지 외주 없이 대표가 직접 해요. 수리 경력 10년.'],
-              ['동의한 수리만', '점검 후 비용을 먼저 안내하고, 동의하신 경우에만 수리해요.'],
-              [`무상 보증 ${warrantyOf(svc)}`, '같은 증상이 다시 생기면 무상으로 봐드려요 (고객 과실 제외).'],
-              ['리뷰로 확인', `네이버 리뷰 평점 ${STORE.reviews.naver.score} · ${STORE.reviews.naver.count}개`],
-            ].map(([t, d]) => (
-              <div key={t} className="panel promise">
-                <ShieldCheck size={26} />
-                <h3>{t}</h3>
-                <p>{d}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        <FaqTabs items={faqItems(svc)} />
+
+        <ServiceArea name={svc.name} />
 
         {areas.length > 0 && (
           <section className="full">
-            <SectionTitle badge="AREA" title={<>지역별 {svc.name} 사례</>} />
+            <SectionHead eyebrow="AREA" title="지역별" accent={`${svc.name} 사례`} />
             <div className="area-links">
               {areas.map(([a, n]) => (
                 <Link key={a} to={`/services/${svc.id}/${a}`} className="pill-link">
@@ -884,15 +1163,10 @@ function ServicePage({ svc }: { svc: Svc }) {
           </section>
         )}
 
-        <section className="full">
-          <SectionTitle badge="Q&A" title={<>{svc.name}, 자주 묻는 질문</>} />
-          <FaqList items={svcFaq(svc)} />
-        </section>
-
-        <CtaPanel title={`${svc.name}, 먼저 점검만 받아보셔도 괜찮아요`} text="증상만 알려주셔도 점검이 필요한지 먼저 말씀드려요. 점검 후 비용을 안내드리고, 동의하신 경우에만 수리해요." extra={<Link className="button" to="/delivery">택배 수리 안내</Link>} />
+        <RequestForm service={svc.name} />
 
         <section className="full">
-          <SectionTitle badge="MORE" title={<>다른 {label} 수리</>} to={'/services/' + svc.device} label={`${label} 수리 전체`} />
+          <SectionHead eyebrow="MORE" title={`다른 ${label} 수리`} />
           <div className="svc-grid">
             {siblings.map((s) => (
               <Link key={s.id} to={'/services/' + s.id} className="panel svc-card">
@@ -1007,6 +1281,8 @@ function About() {
             </div>
           </div>
         </section>
+        <CeoCard />
+        <Principles />
         <section className="full">
           <SectionTitle badge="SERVICE" title="수리 서비스" to="/services" label="서비스 전체" />
           <ServiceGrid />
@@ -1244,27 +1520,7 @@ function FAQ() {
     <>
       <PageHead badge="GOOD TO KNOW" title={<>궁금한 점을 <em>모았어요.</em></>} lead="수리 전, 이것만 확인해주세요." kind="phone" pose="hold" />
       <div className="shell inner-page narrow-page">
-        <div className="faq-list">
-          {faqs.map(([q, a], i) => (
-            <details key={q} className="panel" open={i === 0}>
-              <summary>
-                <span className="q">Q</span>
-                {q}
-                <Plus size={24} strokeWidth={3} />
-              </summary>
-              <p>{a}</p>
-            </details>
-          ))}
-        </div>
-        <div className="faq-more">
-          <p>더 궁금한 점이 있으신가요?</p>
-          <a className="button" href={STORE.tel}>
-            <Phone size={20} /> 전화로 물어보기
-          </a>
-          <ExtLink href={STORE.naver} className="button ghost-dark">
-            <NaverBadge /> 네이버 톡톡
-          </ExtLink>
-        </div>
+        <FaqTabs items={faqItems()} />
       </div>
     </>
   );
