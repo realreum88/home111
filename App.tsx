@@ -31,6 +31,7 @@ import {
 import { Character, CharKind, StoreArt, Sparkle } from './components/Characters';
 import { DEVICES, deviceById } from './devices';
 import SEO from './seo.json';
+import BLOG from './blog.generated.json';
 import { STORE } from './store';
 
 
@@ -38,7 +39,7 @@ import { STORE } from './store';
 const perks = [
   { Icon: Wrench, t: '대표가 직접 수리', d: '상담부터 수리까지 한 사람이 책임져요' },
   { Icon: Eye, t: '부품 직접 확인', d: '어떤 부품을 쓰는지 눈으로 보여드려요' },
-  { Icon: ShieldCheck, t: '3개월 무상 보증', d: '같은 증상이 다시 생기면 무상으로 (고객 과실 제외)' },
+  { Icon: ShieldCheck, t: '수리 후 무상 보증', d: '아이패드 액정 1개월 · 그 밖의 수리 3개월 (고객 과실 제외)' },
   { Icon: Zap, t: '어려운 수리도 당일', d: '휨 복원·메인보드·충전단자까지' },
   { Icon: FileText, t: '여행자 보험 서류', d: '해외 파손 시 견적서·영수증·사진 준비' },
   { Icon: Truck, t: '전국 택배 · 퀵 접수', d: '멀리 계셔도 맡기실 수 있어요' },
@@ -110,6 +111,7 @@ function Header() {
           <Link to="/services">수리하기</Link>
           <Link to="/delivery">택배수리</Link>
           <Link to="/reviews">수리후기</Link>
+          {COLUMNS.length > 0 && <Link to="/blog">수리칼럼</Link>}
           <Link to="/locations">매장안내</Link>
           <a href={STORE.tel} className="nav-call">
             <Phone size={18} /> {STORE.phone}
@@ -139,6 +141,7 @@ function Footer() {
           <Link to="/delivery">택배수리</Link>
           <Link to="/reviews">수리후기</Link>
           <Link to="/locations">매장 안내</Link>
+          {COLUMNS.length > 0 && <Link to="/blog">수리칼럼</Link>}
           <Link to="/faq">자주 묻는 질문</Link>
           <Link to="/contact">상담 준비</Link>
           <ExtLink href={STORE.kakao}>카카오톡 채널</ExtLink>
@@ -282,7 +285,7 @@ function Home() {
                 <Check size={18} /> 당일 수리
               </li>
               <li>
-                <Check size={18} /> 3개월 무상 보증
+                <Check size={18} /> 무상 보증
               </li>
               <li>
                 <Check size={18} /> 택배 · 퀵 접수
@@ -455,7 +458,7 @@ function Home() {
           <SectionTitle badge="NOTICE" title="공지사항" to="/faq" label="자주 묻는 질문" />
           <div className="panel notice-list">
             <Link to="/faq" className="notice-row">
-              <span>보증</span>수리 후 3개월 무상 보증을 드려요 (고객 과실 제외)
+              <span>보증</span>무상 보증: 아이패드 액정 1개월, 그 밖의 수리 3개월 (고객 과실 제외)
               <ChevronRight size={20} />
             </Link>
             <Link to="/locations" className="notice-row">
@@ -590,6 +593,7 @@ function Locations() {
           <ul>
             <li>중앙대·숭실대에서 모두 걸어서 약 10분 거리예요.</li>
             <li>건물 3층 304호예요. 엘리베이터를 이용해주세요.</li>
+            <li>무료 주차가 가능해요.</li>
             <li>일요일·공휴일은 예약제예요. 전화나 네이버 톡톡으로 먼저 연락 주세요.</li>
             <li>방문 전에 모델명과 증상, 데이터 백업 여부를 확인해주세요.</li>
           </ul>
@@ -599,6 +603,89 @@ function Locations() {
         </Link>
       </div>
     </>
+  );
+}
+
+type Column = { slug: string; title: string; description: string; date: string; updated: string; device: string; html: string; faq: [string, string][]; toc: string[] };
+const COLUMNS = BLOG as unknown as Column[];
+const DEVICE_LABEL: Record<string, string> = { iphone: '아이폰', ipad: '아이패드', macbook: '맥북', watch: '애플워치' };
+const dot = (d: string) => d.replace(/-/g, '.');
+
+function BlogList() {
+  return (
+    <>
+      <PageHead badge="REPAIR COLUMN" title={<>수리하면서 알게 된 것, <em>질문으로 답해드려요.</em></>} lead="대표가 직접 고치며 확인한 내용만 정리해요." kind="tablet" pose="point" />
+      <div className="shell inner-page">
+        {COLUMNS.length === 0 ? (
+          <div className="panel tip-box">
+            <p>첫 칼럼을 준비하고 있어요. 그동안 수리 작업 사례를 먼저 확인해보세요.</p>
+            <Link className="button" to="/cases">▶ 수리 작업 사례 보기</Link>
+          </div>
+        ) : (
+          <div className="post-grid">
+            {COLUMNS.map((p) => (
+              <Link key={p.slug} to={`/blog/${p.slug}`} className="panel post-card column-card">
+                <div className="post-body">
+                  <small>
+                    {dot(p.date)}
+                    {DEVICE_LABEL[p.device] && <span className="column-tag">{DEVICE_LABEL[p.device]}</span>}
+                  </small>
+                  <h3>{p.title}</h3>
+                  <p>{p.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function BlogPostPage() {
+  const { slug } = useParams();
+  const post = COLUMNS.find((p) => p.slug === slug);
+  if (!post) return <Navigate to="/blog" replace />;
+  const device = post.device && DEVICE_LABEL[post.device];
+  return (
+    <div className="shell article-page">
+      <nav className="crumbs" aria-label="현재 위치">
+        <Link to="/">홈</Link> <ChevronRight size={14} /> <Link to="/blog">수리칼럼</Link>
+      </nav>
+      <article className="panel article">
+        <header>
+          {device && <span className="badge">{device}</span>}
+          <h1>{post.title}</h1>
+          <p className="article-lead">{post.description}</p>
+          <p className="article-meta">
+            <time dateTime={post.date}>{dot(post.date)}</time>
+            {post.updated !== post.date && <> · 수정 {dot(post.updated)}</>} · 글 세이프픽스 대표 (수리 경력 10년)
+          </p>
+        </header>
+        <div className="article-body" dangerouslySetInnerHTML={{ __html: post.html }} />
+        <p className="article-note">이 글은 대표가 직접 수리하며 확인한 내용을 AI의 도움을 받아 정리하고, 대표가 검수했어요.</p>
+      </article>
+      <div className="panel article-cta">
+        <h2>내 기기도 한번 봐야 할까요?</h2>
+        <p>증상만 알려주셔도 점검이 필요한지 먼저 말씀드려요. 점검 후 비용을 안내드리고, 동의하신 경우에만 수리해요.</p>
+        <div className="delivery-actions">
+          <a className="button" href={STORE.tel}>
+            <Phone size={18} /> 전화 상담 {STORE.phone}
+          </a>
+          <ExtLink className="button" href={STORE.booking}>
+            <CalendarCheck size={18} /> 네이버 예약하기
+          </ExtLink>
+          {post.device && (
+            <Link className="button" to={`/services/${post.device}`}>
+              {device} 수리 안내 보기
+            </Link>
+          )}
+        </div>
+      </div>
+      <Link className="more-link" to="/blog">
+        <ChevronLeft size={18} /> 수리칼럼 목록
+      </Link>
+    </div>
   );
 }
 
@@ -860,10 +947,11 @@ function Shell() {
     // 메뉴별 제목·설명·대표주소 (검색엔진용, seo.json에서 관리)
     const pages = SEO.pages as Record<string, { title: string; description: string; canonical?: string }>;
     const key = pathname === '/services/display' ? '/services/iphone' : pathname.replace(/\/$/, '') || '/';
-    const page = pages[key] || pages['/'];
+    const col = key.startsWith('/blog/') ? COLUMNS.find((p) => '/blog/' + p.slug === key) : undefined;
+    const page: { title: string; description: string; canonical?: string } = col ? { title: col.title + ' | 세이프픽스 수리칼럼', description: col.description } : pages[key] || pages['/'];
     document.title = page.title;
     document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
-    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SEO.site + (page.canonical || (pages[key] ? key : '/')));
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SEO.site + (page.canonical || (pages[key] || col ? key : '/')));
   }, [pathname]);
   return (
     <>
@@ -879,6 +967,8 @@ function Shell() {
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

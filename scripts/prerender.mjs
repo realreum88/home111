@@ -8,6 +8,23 @@ import { dirname, join } from 'node:path';
 const root = new URL('..', import.meta.url).pathname;
 const dist = join(root, 'dist');
 const seo = JSON.parse(readFileSync(join(root, 'seo.json'), 'utf8'));
+const blog = JSON.parse(readFileSync(join(root, 'blog.generated.json'), 'utf8'));
+// 수리칼럼 글을 페이지 목록에 합칩니다 (/blog/<slug>)
+for (const post of blog) {
+  seo.pages['/blog/' + post.slug] = {
+    title: post.title + ' | 세이프픽스 수리칼럼',
+    description: post.description,
+    h1: post.title,
+    body: [],
+    sitemap: true,
+    priority: '0.6',
+    crumb: post.title,
+    qa: post.faq,
+    article: post,
+  };
+}
+if (seo.pages['/blog'] && !blog.length) seo.pages['/blog'].sitemap = false; // 글이 없으면 색인 제외
+if (seo.pages['/blog']) seo.pages['/blog'].links = blog.map((p) => ['/blog/' + p.slug, p.title, p.description]);
 const base = readFileSync(join(dist, 'index.html'), 'utf8');
 const today = new Date().toISOString().slice(0, 10);
 
@@ -21,6 +38,7 @@ const nav = [
   ['/services/watch', '애플워치수리'],
   ['/delivery', '택배수리'],
   ['/cases', '수리 사례'],
+  ['/blog', '수리칼럼'],
   ['/locations', '매장안내'],
   ['/faq', '자주 묻는 질문'],
 ];
@@ -42,6 +60,7 @@ function render(path, page) {
   const ld = [];
   const crumbs = [{ name: '홈', url: seo.site + '/' }];
   if (path.startsWith('/services/')) crumbs.push({ name: '수리하기', url: seo.site + '/services' });
+  if (path.startsWith('/blog/')) crumbs.push({ name: '수리칼럼', url: seo.site + '/blog' });
   if (path !== '/') crumbs.push({ name: page.crumb || page.h1, url: canonical });
   if (crumbs.length > 1) {
     ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })) });
@@ -59,15 +78,36 @@ function render(path, page) {
       hasOfferCatalog: { '@type': 'OfferCatalog', name: page.service.name + ' 항목', itemListElement: page.service.items.map((n) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: page.service.device + ' ' + n } })) },
     });
   }
+  const art = page.article;
+  if (art) {
+    ld.push({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: art.title,
+      description: art.description,
+      datePublished: art.date,
+      dateModified: art.updated,
+      inLanguage: 'ko-KR',
+      mainEntityOfPage: canonical,
+      url: canonical,
+      author: { '@type': 'Person', name: '세이프픽스 대표', jobTitle: '대표', description: '애플 기기 수리 경력 10년, 외주 없이 직접 수리', worksFor: { '@id': seo.site + '/#business' } },
+      publisher: { '@id': seo.site + '/#business' },
+      about: art.device ? { '@type': 'Thing', name: { iphone: '아이폰 수리', ipad: '아이패드 수리', macbook: '맥북 수리', watch: '애플워치 수리' }[art.device] } : undefined,
+    });
+    html = html.replace('<meta property="og:type" content="website">', '<meta property="og:type" content="article">');
+  }
   if (qa.length) {
     ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: qa.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
   }
   const ldTags = ld.map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, '\\u003c')}</script>`).join('');
   html = html.replace('</head>', ldTags + '</head>');
-  const body =
-    `<main data-prerender><h1>${esc(page.h1)}</h1>` +
+  const body = art
+    ? `<main data-prerender><article><h1>${esc(art.title)}</h1><p>${esc(art.description)}</p><p><time datetime="${art.date}">${art.date}</time> · 세이프픽스 대표</p>${art.html}</article>` +
+      `<nav><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul></nav></main>`
+    : `<main data-prerender><h1>${esc(page.h1)}</h1>` +
     `<p>${esc(page.description)}</p>` +
     (page.body.length ? `<ul>${page.body.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : '') +
+    (page.links?.length ? `<ul>${page.links.map(([h, t, d]) => `<li><a href="${h}">${esc(t)}</a> — ${esc(d)}</li>`).join('')}</ul>` : '') +
     (qa.length ? `<section><h2>자주 묻는 질문</h2>${qa.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('')}</section>` : '') +
     `<nav><ul>${nav.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join('')}</ul></nav></main>`;
   html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`);
@@ -80,7 +120,7 @@ for (const [path, page] of Object.entries(seo.pages)) render(path, page);
 
 const urls = Object.entries(seo.pages)
   .filter(([, p]) => p.sitemap)
-  .map(([path, p]) => `  <url>\n    <loc>${seo.site}${path}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${p.priority}</priority>\n  </url>`)
+  .map(([path, p]) => `  <url>\n    <loc>${seo.site}${path}</loc>\n    <lastmod>${p.article ? p.article.updated : today}</lastmod>\n    <priority>${p.priority}</priority>\n  </url>`)
   .join('\n');
 writeFileSync(join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 console.log('prerendered', Object.keys(seo.pages).length, 'pages');
