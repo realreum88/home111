@@ -641,7 +641,7 @@ function Detail() {
           </section>
           {posts.length > 0 && (
             <section>
-              <SectionTitle badge="REAL CASES" title={<>{dev.name} 수리 사례</>} to="/cases" label="전체 수리사례" />
+              <SectionTitle badge="REAL CASES" title={<>{dev.name} 수리 사례·안내</>} to="/cases" label="전체 수리사례" />
               <PostCards posts={posts} showService />
             </section>
           )}
@@ -1442,7 +1442,7 @@ function ServicePage({ svc }: { svc: Svc }) {
 
         {posts.length > 0 && (
           <section className="full">
-            <SectionHead eyebrow="REAL CASES" title={svc.name} accent="실제 수리 사례" />
+            <SectionHead eyebrow="REAL CASES" title={svc.name} accent="사례·안내" />
             <PostCards posts={posts} />
           </section>
         )}
@@ -1569,7 +1569,7 @@ function PostPage({ path }: { path?: string }) {
       <CtaPanel title="내 기기도 한번 봐야 할까요?" text="증상만 알려주셔도 점검이 필요한지 먼저 말씀드려요. 점검 후 비용을 안내드리고, 동의하신 경우에만 수리해요." extra={<Link className="button" to={`/services/${post.service}`}>{post.serviceName} 안내 보기</Link>} />
       {more.length > 0 && (
         <section>
-          <SectionTitle badge="MORE" title={<>다른 {post.serviceName} 사례</>} />
+          <SectionTitle badge="MORE" title={<>다른 {post.serviceName} 사례·안내</>} />
           <PostCards posts={more} />
         </section>
       )}
@@ -1776,12 +1776,19 @@ function Cases() {
           </div>
         </section>
 
-        {home.length > 0 && (
-          <section className="full">
-            <SectionTitle badge="SAFEFIX CASES" title={sel ? `${sel.name} 사례` : '홈페이지 수리 사례'} to={sel ? '/services/' + sel.id : undefined} label={sel ? `${sel.name} 안내` : undefined} />
-            <PostCards posts={home} showService />
-          </section>
-        )}
+        {sel
+          ? home.length > 0 && (
+              <section className="full">
+                <SectionTitle badge="SAFEFIX CASES" title={`${sel.name} 사례·안내`} to={'/services/' + sel.id} label={`${sel.name} 안내`} />
+                <PostCards posts={home} />
+              </section>
+            )
+          : SVCS.filter((s) => home.some((p) => p.service === s.id)).map((s) => (
+              <section className="full" key={s.id}>
+                <SectionTitle badge="SAFEFIX CASES" title={`${s.name} 사례·안내`} to={'/services/' + s.id} label={`${s.name} 안내`} />
+                <PostCards posts={home.filter((p) => p.service === s.id)} />
+              </section>
+            ))}
 
         <BlogBridge
           posts={blogPosts}
