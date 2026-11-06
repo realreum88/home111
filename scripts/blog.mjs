@@ -47,7 +47,7 @@ function markdown(src) {
         q = { q: plain(text), a: [] };
         faq.push(q);
       }
-      out.push(`<h${lv}>${inline(text)}</h${lv}>`);
+      out.push(lv === 3 && inFaq ? `<h3 class="faq-q">${inline(text)}</h3>` : `<h${lv}>${inline(text)}</h${lv}>`);
       i++;
       continue;
     }
