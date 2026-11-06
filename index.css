@@ -981,3 +981,13 @@ form .button { justify-self: start; }
 .article-body figure { margin: 6px 0 24px; }
 .article-body figure img { width: 100%; display: block; border-radius: 14px; border: 3px solid var(--navy); }
 .article-body figcaption { margin-top: 8px; font-size: 15px; color: var(--sub); text-align: center; font-weight: 600; }
+.filter-all { margin-top: 16px; }
+.filter-all .chip { font-size: 17px; padding: 12px 28px; border-radius: 14px; }
+.filter-all .chip.on { background: var(--orange); color: #fff; box-shadow: 3px 3px 0 var(--navy); }
+.filter-group { display: grid; grid-template-columns: 130px 1fr; gap: 16px; align-items: start; margin-top: 18px; padding-top: 18px; border-top: 2px dashed rgba(15, 38, 62, 0.2); }
+.filter-device { margin: 10px 0 0; font-size: 21px; font-weight: 900; color: var(--orange-d); }
+.filter-group .filter-grid { margin-top: 0; }
+@media (max-width: 900px) {
+  .filter-group { grid-template-columns: 1fr; gap: 8px; }
+  .filter-device { margin: 0; font-size: 18px; }
+}

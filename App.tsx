@@ -1764,16 +1764,23 @@ function Cases() {
         <section className="full">
           <SectionTitle badge="GALLERY" title="서비스별 수리 사례" />
           <p className="muted">보고 싶은 수리를 골라보세요.</p>
-          <div className="filter-grid" role="tablist" aria-label="서비스별 수리 사례">
+          <div className="filter-all" role="tablist" aria-label="서비스별 수리 사례">
             <button role="tab" aria-selected={filter === 'all'} className={filter === 'all' ? 'chip on' : 'chip'} onClick={() => setFilter('all')}>
-              전체
+              전체 보기
             </button>
-            {SVCS.map((s) => (
-              <button key={s.id} role="tab" aria-selected={filter === s.id} className={filter === s.id ? 'chip on' : 'chip'} onClick={() => setFilter(s.id)}>
-                {s.name}
-              </button>
-            ))}
           </div>
+          {Object.entries(DEVICE_LABEL).map(([d, n]) => (
+            <div key={d} className="filter-group">
+              <h3 className="filter-device">{n}</h3>
+              <div className="filter-grid" role="tablist" aria-label={`${n} 수리 사례`}>
+                {SVCS.filter((s) => s.device === d).map((s) => (
+                  <button key={s.id} role="tab" aria-selected={filter === s.id} className={filter === s.id ? 'chip on' : 'chip'} onClick={() => setFilter(s.id)}>
+                    {s.name.replace(n + ' ', '')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
 
         {sel
