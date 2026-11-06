@@ -719,7 +719,7 @@ function areaMeta(service: string, area: string) {
 }
 function areasOf(service: string) {
   const m = new Map<string, string>();
-  COLUMNS.filter((p) => p.service === service).forEach((p) => m.set(p.area, p.areaName));
+  COLUMNS.filter((p) => p.service === service && p.area).forEach((p) => m.set(p.area, p.areaName));
   return [...m.entries()];
 }
 
@@ -732,7 +732,7 @@ function PostCards({ posts, showService = false }: { posts: Column[]; showServic
             <small>
               {dot(p.date)}
               {showService && <span className="column-tag">{p.serviceName}</span>}
-              <span className="column-tag area">{p.areaName}</span>
+              {p.areaName ? <span className="column-tag area">{p.areaName}</span> : <span className="column-tag area">수리 안내</span>}
             </small>
             <h3>{p.title}</h3>
             <p>{p.description}</p>
@@ -1509,6 +1509,8 @@ function ServicePage({ svc }: { svc: Svc }) {
 
 function AreaPage() {
   const { serviceId = '', area = '' } = useParams();
+  // /services/<서비스>/<글주소> 형태의 안내 글이면 글을 보여줘요
+  if (COLUMNS.some((p) => p.path === `/services/${serviceId}/${area}`)) return <PostPage path={`/services/${serviceId}/${area}`} />;
   const m = areaMeta(serviceId, area);
   if (!m) return <Navigate to={`/services/${serviceId}`} replace />;
   const label = DEVICE_LABEL[m.svc.device];
@@ -1527,18 +1529,18 @@ function AreaPage() {
   );
 }
 
-function PostPage() {
+function PostPage({ path }: { path?: string }) {
   const { serviceId = '', area = '', slug = '' } = useParams();
-  const post = COLUMNS.find((p) => p.path === `/services/${serviceId}/${area}/${slug}`);
+  const post = COLUMNS.find((p) => p.path === (path || `/services/${serviceId}/${area}/${slug}`));
   if (!post) return <Navigate to={`/services/${serviceId}`} replace />;
   const areaPath = `/services/${post.service}/${post.area}`;
   const more = COLUMNS.filter((p) => p.service === post.service && p.path !== post.path).slice(0, 3);
   return (
     <div className="shell article-page">
-      <Crumbs items={[['홈', '/'], ['서비스', '/services'], [post.serviceName, `/services/${post.service}`], [post.areaName, areaPath]]} />
+      <Crumbs items={[['홈', '/'], ['서비스', '/services'], [post.serviceName, `/services/${post.service}`], ...(post.area ? [[post.areaName, areaPath] as [string, string]] : [])]} />
       <article className="panel article">
         <header>
-          <span className="badge">{post.areaName} · {post.serviceName}</span>
+          <span className="badge">{post.areaName ? `${post.areaName} · ` : '세이프픽스 수리 안내 · '}{post.serviceName}</span>
           <h1>{post.title}</h1>
           <p className="article-lead">{post.description}</p>
           <p className="article-meta">

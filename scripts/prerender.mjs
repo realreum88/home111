@@ -19,7 +19,7 @@ const STORE_LINE = '서울 동작구 상도로47아길 44-1 동작청년창업�
 for (const s of SERVICES) {
   const warranty = s.warranty || '3개월';
   const posts = blog.filter((p) => p.service === s.id);
-  const areas = [...new Map(posts.map((p) => [p.area, p.areaName])).entries()];
+  const areas = [...new Map(posts.filter((p) => p.area).map((p) => [p.area, p.areaName])).entries()];
   seo.pages['/services/' + s.id] = {
     title: `${s.name} 상도동 중앙대·숭실대 | 세이프픽스`,
     description: `${s.name}(${s.short}), 외주 없이 대표가 직접 진단하고 고쳐요. 중앙대·숭실대 도보 10분, 무료 주차, 수리 후 ${warranty} 무상 보증.`,
@@ -64,7 +64,7 @@ for (const post of blog) {
     sitemap: true,
     priority: '0.6',
     crumb: post.title,
-    trail: [[post.serviceName, '/services/' + post.service], [post.areaName, `/services/${post.service}/${post.area}`]],
+    trail: [[post.serviceName, '/services/' + post.service], ...(post.area ? [[post.areaName, `/services/${post.service}/${post.area}`]] : [])],
     qa: post.faq,
     article: post,
   };

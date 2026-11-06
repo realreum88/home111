@@ -104,10 +104,12 @@ function parse(file) {
     const k = line.match(/^(\w+):\s*(.*)$/);
     if (k) meta[k[1]] = k[2].trim().replace(/^["']|["']$/g, '');
   }
-  for (const key of ['title', 'description', 'date', 'slug', 'service', 'area', 'areaName']) if (!meta[key]) throw new Error(`${file}: ${key} 가 비어 있어요`);
+  for (const key of ['title', 'description', 'date', 'slug', 'service']) if (!meta[key]) throw new Error(`${file}: ${key} 가 비어 있어요`);
   const svc = SERVICES.find((x) => x.id === meta.service);
   if (!svc) throw new Error(`${file}: service 는 services.json 의 id 중 하나예요 (${SERVICES.map((x) => x.id).join(', ')})`);
-  if (!/^[a-z0-9-]+$/.test(meta.area)) throw new Error(`${file}: area 는 영문 소문자·숫자·- 만 써주세요 (예: sangdo)`);
+  // area(지역)는 선택: 지역 사례는 area·areaName을 쓰고, 안내 글은 비워두면 /services/<서비스>/<글주소> 로 올라가요
+  if (meta.area && !meta.areaName) throw new Error(`${file}: area 를 쓰면 areaName 도 써주세요`);
+  if (meta.area && !/^[a-z0-9-]+$/.test(meta.area)) throw new Error(`${file}: area 는 영문 소문자·숫자·- 만 써주세요 (예: sangdo)`);
   if (!/^[가-힣a-z0-9-]+$/.test(meta.slug)) throw new Error(`${file}: slug 는 한글·영문 소문자·숫자·- 만, 띄어쓰기 없이 써주세요`);
   const { html, faq, toc, images } = markdown(m[2]);
   return {
@@ -119,9 +121,9 @@ function parse(file) {
     service: svc.id,
     serviceName: svc.name,
     device: svc.device,
-    area: meta.area,
-    areaName: meta.areaName,
-    path: `/services/${svc.id}/${meta.area}/${meta.slug}`,
+    area: meta.area || '',
+    areaName: meta.areaName || '',
+    path: meta.area ? `/services/${svc.id}/${meta.area}/${meta.slug}` : `/services/${svc.id}/${meta.slug}`,
     draft: meta.draft === 'true',
     question: meta.question || '',
     naver: meta.naver || '',
