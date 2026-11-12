@@ -158,7 +158,7 @@
  {
   "id": "q013",
   "service": "iphone-back-glass",
-  "question": "아이폰 뒷판 수리 후 무선충전·방수는 괜찮나요?",
+  "question": "아이폰 뒷면 깨짐 수리 후 무선충전·방수는 괜찮나요?",
   "intent": "사후",
   "priority": "B",
   "status": "published",

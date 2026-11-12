@@ -1,6 +1,6 @@
 [
   {"id": "iphone-screen", "device": "iphone", "name": "아이폰 액정수리", "short": "화면 깨짐 · 터치 불량 · 화면 줄", "symptoms": ["화면 유리가 깨졌어요", "터치가 일부만 되거나 혼자 눌려요", "화면에 줄이나 번짐이 생겼어요", "화면이 까맣게 안 나와요"], "keywords": ["액정", "화면", "디스플레이", "터치"]},
-  {"id": "iphone-back-glass", "device": "iphone", "name": "아이폰 뒷판수리", "short": "뒷면 유리 깨짐", "symptoms": ["뒷면 유리가 깨졌어요", "깨진 유리 조각이 손에 걸려요", "카메라 주변 유리까지 금이 갔어요"], "keywords": ["뒷판", "후면", "뒷면"]},
+  {"id": "iphone-back-glass", "device": "iphone", "name": "아이폰 뒷면 깨짐 수리", "short": "뒷면 유리 깨짐", "symptoms": ["뒷면 유리가 깨졌어요", "깨진 유리 조각이 손에 걸려요", "카메라 주변 유리까지 금이 갔어요"], "keywords": ["뒷판", "후면", "뒷면"]},
   {"id": "iphone-camera", "device": "iphone", "name": "아이폰 카메라수리", "short": "렌즈 깨짐 · 초점 불량 · 카메라 안 켜짐", "symptoms": ["카메라 렌즈 유리가 깨졌어요", "초점이 안 맞고 흔들려요", "카메라 화면이 까맣게 나와요"], "keywords": ["카메라", "렌즈"]},
   {"id": "iphone-battery", "device": "iphone", "name": "아이폰 배터리교체", "short": "빨리 닳음 · 갑자기 꺼짐", "symptoms": ["배터리가 금방 닳아요", "잔량이 남았는데 갑자기 꺼져요", "배터리 성능 최대치가 많이 떨어졌어요"], "keywords": ["배터리"]},
   {"id": "iphone-not-charging", "device": "iphone", "name": "아이폰 충전안됨", "short": "충전 안 됨 · 케이블 인식 불량", "symptoms": ["케이블을 꽂아도 충전이 안 돼요", "특정 각도에서만 충전돼요", "충전 표시가 떴다 사라져요"], "keywords": ["충전"]},

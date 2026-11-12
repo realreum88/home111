@@ -20,7 +20,7 @@
 
 ## 수리 서비스 (수리 종류별 페이지)
 - [아이폰 액정수리](https://www.safefix.co.kr/services/iphone-screen): 화면 깨짐 · 터치 불량 · 화면 줄
-- [아이폰 뒷판수리](https://www.safefix.co.kr/services/iphone-back-glass): 뒷면 유리 깨짐
+- [아이폰 뒷면 깨짐 수리](https://www.safefix.co.kr/services/iphone-back-glass): 뒷면 유리 깨짐
 - [아이폰 카메라수리](https://www.safefix.co.kr/services/iphone-camera): 렌즈 깨짐 · 초점 불량 · 카메라 안 켜짐
 - [아이폰 배터리교체](https://www.safefix.co.kr/services/iphone-battery): 빨리 닳음 · 갑자기 꺼짐
 - [아이폰 충전안됨](https://www.safefix.co.kr/services/iphone-not-charging): 충전 안 됨 · 케이블 인식 불량
