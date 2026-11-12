@@ -2,7 +2,7 @@
 // - 페이지마다 고유 제목·설명·대표주소(canonical)
 // - 자바스크립트를 실행하지 않는 수집기(네이버 등)도 읽을 수 있는 본문 요약과 메뉴 링크
 // - sitemap.xml 자동 생성
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -193,6 +193,18 @@ function render(path, page) {
 }
 
 for (const [path, page] of Object.entries(seo.pages)) render(path, page);
+
+// 주소를 바꾼 글: 옛 주소에 바로 새 주소로 넘어가는 페이지를 남겨요 (content/redirects.json: { "옛 주소": "새 주소" })
+// 한글 주소는 vercel.json redirects에서 매칭되지 않아 정적 페이지로 처리해요.
+const redirectsPath = join(root, 'content', 'redirects.json');
+const redirects = existsSync(redirectsPath) ? JSON.parse(readFileSync(redirectsPath, 'utf8')) : {};
+for (const [from, to] of Object.entries(redirects)) {
+  const url = seo.site + encodeURI(to);
+  const out = join(dist, from.slice(1), 'index.html');
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>페이지가 이동했어요 | 세이프픽스</title><link rel="canonical" href="${url}"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0; url=${encodeURI(to)}"><script>location.replace(${JSON.stringify(encodeURI(to))})</script></head><body><p>이 글은 <a href="${encodeURI(to)}">새 주소</a>로 옮겨졌어요.</p></body></html>`);
+}
+if (Object.keys(redirects).length) console.log('redirect pages', Object.keys(redirects).length);
 
 const urls = Object.entries(seo.pages)
   .filter(([, p]) => p.sitemap)
