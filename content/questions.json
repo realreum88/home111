@@ -1532,5 +1532,18 @@
   "tistory": "",
   "indexed": false,
   "blogCase": false
+ },
+ {
+  "id": "q119",
+  "service": "ipad-mainboard",
+  "question": "아이패드가 계속 재부팅되고 패닉 풀(panic-full) 로그가 남아요. 원인이 뭔가요?",
+  "intent": "진단",
+  "priority": "high",
+  "status": "todo",
+  "post": "",
+  "naver": "",
+  "tistory": "",
+  "indexed": false,
+  "blogCase": false
  }
 ]
