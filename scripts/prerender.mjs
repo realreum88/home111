@@ -2,7 +2,7 @@
 // - 페이지마다 고유 제목·설명·대표주소(canonical)
 // - 자바스크립트를 실행하지 않는 수집기(네이버 등)도 읽을 수 있는 본문 요약과 메뉴 링크
 // - sitemap.xml 자동 생성
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -246,6 +246,28 @@ console.log('prerendered', Object.keys(seo.pages).length, 'pages');
     if (s.points?.length) full.push(...s.points.map((x) => `- 수리하며 확인하는 것: ${x}`));
     if (c.steps?.length) full.push(`- 진행 과정: ${c.steps.map(([n]) => n).join(' → ')}`);
     if (c.qa?.length) full.push(...c.qa.map(([q, a]) => `- Q. ${q} A. ${a}`));
+  }
+  // 수리 사례 원문: AI가 실제 진단·수리 과정과 수치를 그대로 인용할 수 있게 본문 전체를 마크다운으로 넣어요
+  if (blog.length) {
+    const blogDir = join(root, 'content', 'blog');
+    const src = {};
+    for (const f of readdirSync(blogDir).filter((x) => x.endsWith('.md'))) {
+      const raw = readFileSync(join(blogDir, f), 'utf8').replace(/\r\n/g, '\n');
+      const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+      const slug = m && (m[1].match(/^slug:\s*(.+)$/m) || [])[1];
+      if (slug) src[slug.trim()] = m[2];
+    }
+    full.push('', '# 수리 사례 원문');
+    for (const p of blog) {
+      const body = src[p.slug];
+      if (!body) continue;
+      const md = body
+        .replace(/^!\[(.*?)\]\([^)]*\)\s*$/gm, '[사진: $1]')
+        .replace(/\]\((\/[^)\s]*)\)/g, (_, href) => '](' + u(href) + ')')
+        .replace(/^(#{2,3}) /gm, (h) => '#' + h)
+        .trim();
+      full.push('', `## ${p.title}`, `- 주소: ${u(p.path)}`, `- 서비스: ${p.serviceName} · 작성일 ${p.date}${p.updated && p.updated !== p.date ? ` · 수정일 ${p.updated}` : ''}`, '', md);
+    }
   }
   writeFileSync(join(dist, 'llms-full.txt'), full.join('\n') + '\n');
   console.log('llms.txt', lines.length, 'lines / llms-full.txt', full.length, 'lines');
