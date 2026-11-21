@@ -1742,11 +1742,10 @@ function reviewPool(device?: string): RCard[] {
     const svc = SVCS.find((s) => s.name === r.service) || SVCS.find((s) => r.service && r.service.replace(/\s/g, '').startsWith(s.name.replace(/\s/g, '')));
     return { key: 'r' + i, name: r.name, source: r.source, text: r.text, image: r.image, service: r.service, device: r.device, to: svc ? '/services/' + svc.id : r.device ? '/services/' + r.device : '/reviews', isCase: false };
   });
+  // 출처(네이버·카카오·당근·사례 캡처)가 번갈아 나오게 섞어요
+  const groups = [fromPosts, ...['카카오', '당근', '네이버'].map((k) => base.filter((c) => c.source.includes(k)))].filter((g) => g.length);
   const mixed: RCard[] = [];
-  for (let i = 0; i < Math.max(fromPosts.length, base.length); i++) {
-    if (fromPosts[i]) mixed.push(fromPosts[i]);
-    if (base[i]) mixed.push(base[i]);
-  }
+  for (let i = 0; i < Math.max(...groups.map((g) => g.length)); i++) groups.forEach((g) => g[i] && mixed.push(g[i]));
   return device ? [...mixed.filter((c) => c.device === device), ...mixed.filter((c) => c.device !== device)] : mixed;
 }
 const SOURCE_CLASS = (s: string) => (s.includes('카카오') ? 'kakao' : s.includes('당근') ? 'daangn' : 'naver');
