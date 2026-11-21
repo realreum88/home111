@@ -1774,7 +1774,7 @@ function ReviewMarquee({ device, title }: { device?: string; title?: string }) {
       {title && <h3 className="rv-title">{title}</h3>}
       {rows.map((row, ri) => (
         <div key={ri} className={'rv-row' + (ri ? ' reverse' : '')}>
-          <div className="rv-track" style={{ animationDuration: `${Math.max(30, row.length * 9)}s` }}>
+          <div className="rv-track" style={{ animationDuration: `${Math.max(40, row.length * 12)}s` }}>
             {row.map((c) => (
               <ReviewCard key={c.key} c={c} />
             ))}
