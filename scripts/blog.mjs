@@ -112,6 +112,10 @@ function parse(file) {
   if (meta.area && !/^[a-z0-9-]+$/.test(meta.area)) throw new Error(`${file}: area 는 영문 소문자·숫자·- 만 써주세요 (예: sangdo)`);
   if (!/^[가-힣a-z0-9-]+$/.test(meta.slug)) throw new Error(`${file}: slug 는 한글·영문 소문자·숫자·- 만, 띄어쓰기 없이 써주세요`);
   const { html, faq, toc, images } = markdown(m[2]);
+  // 글 안의 손님 리뷰 인용(> "…" — 네이버 플레이스 리뷰)과 리뷰 캡처(-review.webp)를 뽑아 후기 파노라마에 써요
+  const quote = m[2].match(/^>\s*"(.+?)"\s*[—-]\s*(.+)$/m);
+  const shot = images.find((x) => /-review\.(webp|jpg|png)$/.test(x));
+  const review = quote ? { text: plain(quote[1]).replace(/\s*…\s*/g, ' … ').trim(), source: quote[2].includes('카카오') ? '카카오 리뷰' : quote[2].includes('당근') ? '당근 후기' : '네이버 리뷰', image: shot || '' } : null;
   return {
     slug: meta.slug,
     title: meta.title,
@@ -132,6 +136,7 @@ function parse(file) {
     faq,
     toc,
     images,
+    review,
   };
 }
 

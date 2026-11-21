@@ -1010,3 +1010,57 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .floating-contact.naver-float { bottom: 68px; }
   .floating-contact.kakao-float { bottom: 122px; }
 }
+
+/* ========== 상황별 안내 칩 ========== */
+.sit-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-top: 18px; width: 100%; }
+.sit-chip { display: grid; gap: 4px; padding: 16px 18px; background: var(--white); border: var(--line) solid var(--navy); border-radius: 16px; box-shadow: 4px 4px 0 var(--navy); transition: transform 0.15s; }
+.sit-chip:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--orange); }
+.sit-chip b { font-size: 18px; font-weight: 900; line-height: 1.35; word-break: keep-all; }
+.sit-chip span { font-size: 14px; color: var(--sub); font-weight: 700; }
+.sit-section { scroll-margin-top: 110px; }
+
+/* ========== 사례 질문 모음 ========== */
+.case-faq-group { margin-top: 26px; width: 100%; }
+.case-faq-group h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-size: 22px; font-weight: 900; margin: 0 0 12px; }
+.case-faq-group h3 a { font-size: 15px; font-weight: 800; color: var(--orange-d); }
+.case-faq-link { margin-top: 4px !important; }
+.case-faq-link a { color: var(--navy); font-weight: 800; text-decoration: underline; word-break: keep-all; }
+
+/* ========== 푸터 서비스 전체 링크 ========== */
+.footer-svc { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; padding: 26px 0; margin-top: 26px; border-top: 2px dashed rgba(255, 255, 255, 0.25); }
+.footer-svc div { display: grid; gap: 6px; align-content: start; }
+.footer-svc a { color: #c9d4e2; font-size: 14.5px; font-weight: 600; }
+.footer-svc a:hover { color: var(--yellow); }
+.footer-svc .footer-svc-head { color: #fff; font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+@media (max-width: 900px) { .footer-svc { grid-template-columns: repeat(2, 1fr); } }
+
+/* ========== 후기 파노라마 ========== */
+.rv-panorama { width: 100%; display: grid; gap: 18px; margin: 22px 0 10px; }
+.rv-title { font-size: 24px; font-weight: 900; margin: 0 0 4px; }
+.rv-row { overflow: hidden; width: 100%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.rv-track { display: flex; gap: 18px; width: max-content; padding: 6px 0 10px; animation: rv-scroll 60s linear infinite; }
+.rv-row.reverse .rv-track { animation-direction: reverse; }
+.rv-row:hover .rv-track, .rv-row:focus-within .rv-track { animation-play-state: paused; }
+@keyframes rv-scroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 9px)); } }
+.rv-card { flex: 0 0 300px; display: flex; flex-direction: column; background: var(--white); border: var(--line) solid var(--navy); border-radius: 18px; box-shadow: 4px 4px 0 var(--navy); overflow: hidden; color: var(--ink); }
+.rv-card:hover { box-shadow: 6px 6px 0 var(--orange); }
+.rv-card img { width: 100%; height: 200px; object-fit: cover; object-position: top; border-bottom: 3px solid var(--navy); background: var(--cream); }
+.rv-body { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; flex: 1; }
+.rv-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rv-src { font-size: 12.5px; font-weight: 900; padding: 3px 10px; border-radius: 999px; border: 2px solid var(--navy); }
+.rv-src.naver { background: #03c75a; color: #fff; }
+.rv-src.kakao { background: #fee500; color: #191919; }
+.rv-src.daangn { background: #ff6f0f; color: #fff; }
+.rv-svc { font-size: 13px; font-weight: 800; color: var(--sub); }
+.rv-body p { margin: 0; font-size: 15px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; }
+.rv-go { margin-top: auto; font-size: 14px; font-weight: 900; color: var(--orange-d); }
+@media (max-width: 600px) {
+  .rv-card { flex-basis: 250px; }
+  .rv-card img { height: 160px; }
+  .sit-chips { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv-row { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .rv-track { animation: none; }
+  .rv-card[aria-hidden='true'] { display: none; }
+}

@@ -110,6 +110,7 @@ const nav = [
   ['/delivery', '택배수리'],
   ['/cases', '수리 사례'],
   ['/locations', '매장안내'],
+  ['/guide', '상황별 수리 안내'],
   ['/faq', '자주 묻는 질문'],
   ['/contact', '견적문의'],
 ];
@@ -236,7 +237,7 @@ console.log('prerendered', Object.keys(seo.pages).length, 'pages');
   if (homeQa.length) lines.push('', '## 자주 묻는 질문', ...homeQa.map(([q, a]) => `- Q. ${q}\n  A. ${a}`));
   if (blog.length) lines.push('', '## 홈페이지 수리 사례', ...blog.map((p) => `- [${p.title}](${u(p.path)}): ${p.description}`));
   if (blogPosts.length) lines.push('', '## 블로그 수리기 (네이버 블로그, 최신순)', ...blogPosts.slice(0, 30).map((p) => `- [${p.title}](${p.link})`));
-  lines.push('', '## 주요 페이지', `- 회사소개: ${S}/about`, `- 서비스 전체: ${S}/services`, `- 수리사례: ${S}/cases`, `- 견적문의: ${S}/contact`, `- 택배수리: ${S}/delivery`, `- 매장 위치: ${S}/locations`, `- 자주 묻는 질문: ${S}/faq`, `- 전체 내용(상세): ${S}/llms-full.txt`);
+  lines.push('', '## 주요 페이지', `- 회사소개: ${S}/about`, `- 서비스 전체: ${S}/services`, `- 수리사례: ${S}/cases`, `- 견적문의: ${S}/contact`, `- 택배수리: ${S}/delivery`, `- 매장 위치: ${S}/locations`, `- 자주 묻는 질문: ${S}/faq`, `- 상황별 수리 안내: ${S}/guide`, `- 전체 내용(상세): ${S}/llms-full.txt`);
   writeFileSync(join(dist, 'llms.txt'), lines.join('\n') + '\n');
   // 상세판: 서비스별 증상·확인 사항·진행 과정·Q&A 전부
   const full = [lines.join('\n'), '', '# 서비스별 상세'];

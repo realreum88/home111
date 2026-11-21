@@ -134,6 +134,7 @@ function Header() {
             <ExtLink href={STORE.naver}>네이버 플레이스</ExtLink>
             <ExtLink href={STORE.daangn}>당근 매장</ExtLink>
             <ExtLink href={STORE.kakao}>카카오 채널</ExtLink>
+            <Link to="/guide">상황별 수리 안내</Link>
             <Link to="/faq">자주 묻는 질문</Link>
           </span>
         </div>
@@ -221,6 +222,28 @@ function Footer() {
           <ExtLink href={STORE.kakao}>카카오톡 채널</ExtLink>
         </div>
       </div>
+      <nav className="shell footer-svc" aria-label="수리 서비스 전체">
+        {Object.entries(DEVICE_LABEL).map(([d, n]) => (
+          <div key={d}>
+            <Link to={'/services/' + d} className="footer-svc-head">
+              {n} 수리
+            </Link>
+            {SVCS.filter((s) => s.device === d).map((s) => (
+              <Link key={s.id} to={'/services/' + s.id}>
+                {s.name}
+              </Link>
+            ))}
+          </div>
+        ))}
+        <div>
+          <span className="footer-svc-head">더 알아보기</span>
+          <Link to="/guide">상황별 수리 안내</Link>
+          <Link to="/cases">수리 사례 전체</Link>
+          <Link to="/faq">자주 묻는 질문</Link>
+          <Link to="/reviews">손님 후기</Link>
+          <Link to="/delivery">택배 수리</Link>
+        </div>
+      </nav>
       <div className="shell footer-info">
         <p>
           <strong>{STORE.name}</strong>
@@ -427,6 +450,16 @@ function Home() {
         <section id="services">
           <SectionTitle badge="SELECT STAGE" title={<>어떤 기기를 <em>맡기시나요?</em></>} to="/services" />
           <ServiceCards />
+        </section>
+
+        <section>
+          <SectionTitle badge="NEW CASES" title={<>최근 <em>수리 사례</em></>} to="/cases" label="수리 사례 전체" />
+          <PostCards posts={COLUMNS.slice(0, 6)} showService />
+        </section>
+
+        <section>
+          <SectionTitle badge="REPAIR GUIDE" title={<>지금 어떤 <em>상황인가요?</em></>} to="/guide" label="상황별 안내 전체" />
+          <SituationChips />
         </section>
 
         <section className="perks-wrap">
@@ -1240,13 +1273,7 @@ function ReviewText({ text }: { text: string }) {
     </>
   );
 }
-function ReviewSection({ device, initial = 3 }: { device?: string; initial?: number }) {
-  const [more, setMore] = useState(false);
-  const sorted = [...(REVIEWS as Review[])].sort((x, y) => Number(y.device === device) - Number(x.device === device));
-  // 처음 보이는 3개 안에 아이패드 액정수리 후기를 항상 넣어요
-  const pin = sorted.find((r) => r.service === '아이패드 액정수리');
-  const all = pin && sorted.indexOf(pin) > 2 ? [...sorted.slice(0, 2).filter((r) => r !== pin), pin, ...sorted.slice(2).filter((r) => r !== pin)] : sorted;
-  const list = all;
+function ReviewSection({ device }: { device?: string; initial?: number }) {
   return (
     <section className="full" id="reviews">
       <div className="stars" aria-hidden="true">
@@ -1267,37 +1294,7 @@ function ReviewSection({ device, initial = 3 }: { device?: string; initial?: num
           <span>당근 이웃 후기 {STORE.reviews.daangn.count}개</span>
         </ExtLink>
       </div>
-      {list.length > 0 && (
-        <div className="review-grid">
-          {list.map((r, i) => (
-            <div key={i} className="panel review-item" hidden={!more && i >= initial}>
-              {r.image && <img src={r.image} alt="" loading="lazy" />}
-              <div className="review-head">
-                <b>{r.name}</b>
-                <small>{r.source}</small>
-              </div>
-              {r.service && (
-                <p className="review-svc">
-                  {r.service} {r.score && <span>★ {r.score}</span>}
-                </p>
-              )}
-              <ReviewText text={r.text} />
-              {r.tags && (
-                <div className="review-tags">
-                  {r.tags.map((t) => (
-                    <span key={t}>{t}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-      {all.length > initial && (
-        <button className="faq-more-btn" aria-expanded={more} onClick={() => setMore(!more)}>
-          {more ? '접기' : `후기 ${all.length - initial}개 더보기`} {more ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </button>
-      )}
+      <ReviewMarquee device={device} />
       <div className="delivery-actions bridge-more">
         <ExtLink className="button" href={STORE.naverReview}>
           네이버 리뷰 전체 보기 <ExternalLink size={18} />
@@ -1536,7 +1533,6 @@ function PostPage({ path }: { path?: string }) {
   const post = COLUMNS.find((p) => p.path === (path || `/services/${serviceId}/${area}/${slug}`));
   if (!post) return <Navigate to={`/services/${serviceId}`} replace />;
   const areaPath = `/services/${post.service}/${post.area}`;
-  const more = COLUMNS.filter((p) => p.service === post.service && p.path !== post.path).slice(0, 3);
   return (
     <div className="shell article-page">
       <Crumbs items={[['홈', '/'], ['서비스', '/services'], [post.serviceName, `/services/${post.service}`], ...(post.area ? [[post.areaName, areaPath] as [string, string]] : [])]} />
@@ -1569,12 +1565,226 @@ function PostPage({ path }: { path?: string }) {
         <p className="article-note">이 글은 대표가 직접 수리하며 확인한 내용을 AI의 도움을 받아 정리하고, 대표가 검수했어요.</p>
       </article>
       <CtaPanel title="내 기기도 한번 봐야 할까요?" text="증상만 알려주셔도 점검이 필요한지 먼저 말씀드려요. 점검 후 비용을 안내드리고, 동의하신 경우에만 수리해요." extra={<Link className="button" to={`/services/${post.service}`}>{post.serviceName} 안내 보기</Link>} />
-      {more.length > 0 && (
+      <RelatedPosts post={post} />
+    </div>
+  );
+}
+
+
+// ===== 상황별 안내 · 글끼리 유기적 연결 =====
+// 글 제목·요약에 들어간 말로 상황을 자동으로 묶어요. 새 글을 올리면 맞는 상황에 저절로 들어가요.
+type Situation = { id: string; name: string; short: string; re: RegExp };
+const SITUATIONS: Situation[] = [
+  { id: 'water', name: '물에 빠졌거나 음료를 쏟았어요', short: '침수 · 음료 · 습기', re: /침수|물에|음료|밀크티|커피|습기/ },
+  { id: 'drop', name: '떨어뜨리거나 눌려서 깨졌어요', short: '화면 · 뒷면 파손 · 줄 · 들뜸', re: /깨짐|깨진|깨져|파손|떨어|무거운|낙하|줄이 생기/ },
+  { id: 'battery', name: '배터리가 빨리 닳거나 부풀었어요', short: '배터리 수명 · 팽창 · 교체 시기', re: /배터리/ },
+  { id: 'charge', name: '충전이 안 돼요', short: '충전 안 됨 · 충전 중이 아님', re: /충전 안|충전-안|충전 중이 아님|충전이 안|충전단자/ },
+  { id: 'reboot', name: '저절로 꺼지거나 재부팅돼요', short: '패닉 풀 · 복구모드 · 재부팅', re: /재부팅|패닉|복구모드|꺼졌다/ },
+  { id: 'pencil', name: '애플펜슬이 끊겨요', short: '액정 교체 후 펜슬 · ROM 작업', re: /펜슬/ },
+  { id: 'button', name: '버튼이 들어가서 안 나와요', short: '전원버튼 함몰 · 고착', re: /버튼/ },
+  { id: 'cost', name: '수리 비용이 궁금해요', short: '공식 · 사설 비용 비교 · 견적', re: /비용|견적|절반/ },
+];
+const situationsOf = (p: Column) => SITUATIONS.filter((s) => s.re.test(p.title + ' ' + p.description));
+const postsOfSituation = (id: string) => COLUMNS.filter((p) => situationsOf(p).some((s) => s.id === id));
+
+function SituationChips({ current }: { current?: Situation[] }) {
+  const list = current || SITUATIONS.filter((s) => postsOfSituation(s.id).length);
+  return (
+    <div className="sit-chips">
+      {list.map((s) => (
+        <Link key={s.id} to={`/guide#${s.id}`} className="sit-chip">
+          <b>{s.name}</b>
+          <span>
+            {s.short} · 사례 {postsOfSituation(s.id).length}
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function Guide() {
+  const loc = useLocation();
+  useEffect(() => {
+    if (!loc.hash) return;
+    const t = setTimeout(() => document.getElementById(loc.hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    return () => clearTimeout(t);
+  }, [loc.hash]);
+  const sits = SITUATIONS.filter((s) => postsOfSituation(s.id).length);
+  return (
+    <>
+      <PageHead badge="REPAIR GUIDE" title={<>지금 어떤 상황인가요? <em>상황별로 찾아보세요.</em></>} lead="고장 난 상황을 고르면, 같은 상황에서 실제로 고친 사례와 확인할 점을 바로 볼 수 있어요." kind="tablet" pose="point" />
+      <div className="shell inner-page">
+        <Crumbs items={[['홈', '/'], ['상황별 수리 안내']]} />
+        <section className="full">
+          <SectionTitle badge="SELECT" title="내 상황 고르기" />
+          <SituationChips />
+        </section>
+        {sits.map((s) => {
+          const posts = postsOfSituation(s.id);
+          const svcs = [...new Set(posts.map((p) => p.service))].map((id) => svcById(id)!).filter(Boolean);
+          return (
+            <section className="full sit-section" id={s.id} key={s.id}>
+              <SectionTitle badge={s.short} title={s.name} />
+              <PostCards posts={posts} showService />
+              <div className="area-links">
+                {svcs.map((v) => (
+                  <Link key={v.id} to={'/services/' + v.id} className="pill-link">
+                    {v.name} 안내 <ChevronRight size={16} />
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+        <CtaPanel title="내 상황이 목록에 없나요?" text="모델과 증상만 알려주시면 점검이 필요한지 먼저 말씀드려요. 점검 후 비용을 안내드리고, 동의하신 경우에만 수리해요." extra={<Link className="button" to="/faq">자주 묻는 질문 보기</Link>} />
+      </div>
+    </>
+  );
+}
+
+// 글 아래: 같은 수리 → 같은 상황 → 같은 기기 순서로 이어 읽기
+function RelatedPosts({ post }: { post: Column }) {
+  const sits = situationsOf(post);
+  const other = COLUMNS.filter((p) => p.path !== post.path);
+  const sameSvc = other.filter((p) => p.service === post.service).slice(0, 3);
+  const used = new Set(sameSvc.map((p) => p.path));
+  const sameSit = other.filter((p) => !used.has(p.path) && situationsOf(p).some((s) => sits.includes(s))).slice(0, 3);
+  sameSit.forEach((p) => used.add(p.path));
+  const sameDev = other.filter((p) => !used.has(p.path) && p.device === post.device).slice(0, 3);
+  const label = DEVICE_LABEL[post.device];
+  return (
+    <>
+      {sits.length > 0 && (
         <section>
-          <SectionTitle badge="MORE" title={<>다른 {post.serviceName} 사례·안내</>} />
-          <PostCards posts={more} />
+          <SectionTitle badge="SITUATION" title="이 글과 같은 상황 모아보기" to="/guide" label="상황별 안내 전체" />
+          <SituationChips current={sits} />
         </section>
       )}
+      {sameSvc.length > 0 && (
+        <section>
+          <SectionTitle badge="SAME REPAIR" title={<>다른 {post.serviceName} 사례</>} to={`/services/${post.service}`} label={`${post.serviceName} 안내`} />
+          <PostCards posts={sameSvc} />
+        </section>
+      )}
+      {sameSit.length > 0 && (
+        <section>
+          <SectionTitle badge="SIMILAR CASE" title="비슷한 상황의 다른 수리 사례" />
+          <PostCards posts={sameSit} showService />
+        </section>
+      )}
+      {sameDev.length > 0 && (
+        <section>
+          <SectionTitle badge="SAME DEVICE" title={<>다른 {label} 수리 사례</>} to={`/services/${post.device}`} label={`${label} 수리 전체`} />
+          <PostCards posts={sameDev} showService />
+        </section>
+      )}
+      <section>
+        <ReviewMarquee device={post.device} title="이 수리를 맡기신 분들의 후기" />
+      </section>
+    </>
+  );
+}
+
+// 사례 글의 자주 묻는 질문을 한곳에 모으고, 답마다 원래 사례로 이어줘요
+function CaseFaq() {
+  const seen = new Set<string>();
+  const groups = Object.entries(DEVICE_LABEL)
+    .map(([d, n]) => {
+      const items: { q: string; a: string; post: Column }[] = [];
+      COLUMNS.filter((p) => p.device === d).forEach((p) =>
+        p.faq.forEach(([q, a]) => {
+          if (seen.has(q)) return;
+          seen.add(q);
+          items.push({ q, a, post: p });
+        }),
+      );
+      return { d, n, items };
+    })
+    .filter((g) => g.items.length);
+  if (!groups.length) return null;
+  return (
+    <section className="full case-faq">
+      <SectionHead eyebrow="Q&A FROM CASES" title="실제 수리 사례에서 나온" accent="질문과 답" lead="답 아래 링크를 누르면 그 질문이 나온 실제 수리 사례를 볼 수 있어요." />
+      {groups.map((g) => (
+        <div key={g.d} className="case-faq-group">
+          <h3>
+            {g.n} 수리 <Link to={'/services/' + g.d}>{g.n} 수리 전체 보기 →</Link>
+          </h3>
+          <div className="faq-list">
+            {g.items.map(({ q, a, post }) => (
+              <details key={q} className="panel">
+                <summary>
+                  <span className="q">Q</span>
+                  {q}
+                </summary>
+                <p>{a}</p>
+                <p className="case-faq-link">
+                  <Link to={post.path}>이 질문이 나온 사례 보기: {post.title} →</Link>
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+// ===== 후기 파노라마: 네이버·카카오·당근 후기를 섞어서 흘려 보여줘요 =====
+type RCard = { key: string; name?: string; source: string; text: string; image?: string; service?: string; device?: string; to: string; isCase: boolean };
+function reviewPool(device?: string): RCard[] {
+  const fromPosts: RCard[] = COLUMNS.filter((p) => (p as Column & { review?: { text: string; source: string; image: string } }).review).map((p) => {
+    const r = (p as Column & { review: { text: string; source: string; image: string } }).review;
+    return { key: p.path, source: r.source, text: r.text, image: r.image, service: p.serviceName, device: p.device, to: p.path, isCase: true };
+  });
+  const base: RCard[] = (REVIEWS as Review[]).map((r, i) => {
+    const svc = SVCS.find((s) => s.name === r.service) || SVCS.find((s) => r.service && r.service.replace(/\s/g, '').startsWith(s.name.replace(/\s/g, '')));
+    return { key: 'r' + i, name: r.name, source: r.source, text: r.text, image: r.image, service: r.service, device: r.device, to: svc ? '/services/' + svc.id : r.device ? '/services/' + r.device : '/reviews', isCase: false };
+  });
+  const mixed: RCard[] = [];
+  for (let i = 0; i < Math.max(fromPosts.length, base.length); i++) {
+    if (fromPosts[i]) mixed.push(fromPosts[i]);
+    if (base[i]) mixed.push(base[i]);
+  }
+  return device ? [...mixed.filter((c) => c.device === device), ...mixed.filter((c) => c.device !== device)] : mixed;
+}
+const SOURCE_CLASS = (s: string) => (s.includes('카카오') ? 'kakao' : s.includes('당근') ? 'daangn' : 'naver');
+function ReviewCard({ c, hidden }: { c: RCard; hidden?: boolean; key?: string }) {
+  return (
+    <Link to={c.to} className="rv-card" aria-hidden={hidden || undefined} tabIndex={hidden ? -1 : undefined}>
+      {c.image && <img src={c.image} alt={hidden ? '' : `${c.service || '수리'} 손님 ${c.source} 캡처`} loading="lazy" />}
+      <div className="rv-body">
+        <div className="rv-head">
+          <span className={'rv-src ' + SOURCE_CLASS(c.source)}>{c.source}</span>
+          {c.service && <span className="rv-svc">{c.service}</span>}
+        </div>
+        <p>{c.text}</p>
+        <span className="rv-go">{c.isCase ? '이 수리 사례 보기 →' : `${c.service || '수리'} 안내 보기 →`}</span>
+      </div>
+    </Link>
+  );
+}
+function ReviewMarquee({ device, title }: { device?: string; title?: string }) {
+  const pool = reviewPool(device);
+  if (!pool.length) return null;
+  const half = Math.ceil(pool.length / 2);
+  const rows = [pool.slice(0, half), pool.slice(half).length ? pool.slice(half) : pool.slice(0, half)];
+  return (
+    <div className="rv-panorama" aria-label="손님 후기 모음">
+      {title && <h3 className="rv-title">{title}</h3>}
+      {rows.map((row, ri) => (
+        <div key={ri} className={'rv-row' + (ri ? ' reverse' : '')}>
+          <div className="rv-track" style={{ animationDuration: `${Math.max(30, row.length * 9)}s` }}>
+            {row.map((c) => (
+              <ReviewCard key={c.key} c={c} />
+            ))}
+            {row.map((c) => (
+              <ReviewCard key={c.key + '-dup'} c={c} hidden />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -1884,6 +2094,8 @@ function FAQ() {
       <PageHead badge="GOOD TO KNOW" title={<>궁금한 점을 <em>모았어요.</em></>} lead="수리 전, 이것만 확인해주세요." kind="phone" pose="hold" />
       <div className="shell inner-page narrow-page">
         <FaqTabs items={faqItems()} />
+        <CaseFaq />
+        <CtaPanel title="찾는 질문이 없나요?" text="고장 난 상황별로 실제 수리 사례를 모아뒀어요. 모델과 증상만 알려주셔도 점검이 필요한지 먼저 말씀드려요." extra={<Link className="button" to="/guide">상황별 수리 안내 보기</Link>} />
       </div>
     </>
   );
@@ -2037,6 +2249,7 @@ export function Shell() {
           <Route path="/cases" element={<Cases />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/guide" element={<Guide />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/services/:serviceId/:area" element={<AreaPage />} />
