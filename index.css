@@ -767,7 +767,7 @@ form .button { justify-self: start; }
 .request { background: var(--navy); color: #fff; border: var(--line) solid var(--navy); border-radius: var(--r); padding: 56px 48px; text-align: center; box-shadow: 8px 8px 0 var(--orange); }
 .request h2 { margin: 0; font-size: 42px; line-height: 1.25; font-weight: 900; word-break: keep-all; }
 .request > p { margin: 14px 0 34px; font-size: 19px; color: #dbe6f2; font-weight: 600; }
-.request form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; text-align: left; }
+.request form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 24px; text-align: left; }
 .request label { display: grid; gap: 10px; font-size: 18px; font-weight: 800; }
 .request label i { color: var(--orange); font-style: normal; }
 .request .wide { grid-column: 1 / -1; }
@@ -1065,3 +1065,20 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .rv-track { animation: none; }
   .rv-card[aria-hidden='true'] { display: none; }
 }
+
+/* 입력칸이 상자 밖으로 넘치지 않게 (아이폰 사파리는 입력칸 기본 폭이 커서 넘쳤어요) */
+input, textarea, select { max-width: 100%; min-width: 0; }
+.request label, .memo-box label, .request form > *, .memo-box form > * { min-width: 0; }
+.request input, .request textarea, .request select, .memo-box input, .memo-box textarea { width: 100%; }
+.request { max-width: 100%; }
+@media (max-width: 900px) { .request form { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) {
+  .request { padding: 32px 18px; box-shadow: 5px 5px 0 var(--orange); }
+  .request h2 { font-size: 26px; }
+  .request > p { font-size: 16.5px; margin-bottom: 24px; }
+  .request label { font-size: 16.5px; }
+  .request input, .request textarea, .request select { font-size: 16px; padding: 14px 14px; }
+  .memo-box { padding: 24px 18px; }
+  .quickbar { width: calc(100% - 32px); }
+}
+@media (max-width: 360px) { .quickbar .quick b { font-size: 16px; } .quickbar .quick { padding-left: 12px; padding-right: 12px; } }
