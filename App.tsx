@@ -337,7 +337,6 @@ function Home() {
     <>
       <section className="hero" aria-label="서비스 소개 배너">
         <div className="hero-dots" />
-        <div className="hero-sun" />
         <Sparkle className="sp sp1" size={46} />
         <Sparkle className="sp sp2" size={26} color="#fff" />
         <Sparkle className="sp sp3" size={34} />
@@ -366,11 +365,14 @@ function Home() {
               </li>
             </ul>
           </div>
+          <div className="hero-art-wrap">
+          <div className="hero-sun" aria-hidden="true" />
           <div className="hero-art" key={'a' + slide}>
             <div className="hero-stage" />
             <Character kind={s.chars[1]} pose="point" mood="wink" className="hero-chr back" />
             <Character kind={s.chars[0]} pose="wave" mood="happy" className="hero-chr front" label="수리 캐릭터" />
             <span className="bubble hero-bubble">{s.bubble}</span>
+          </div>
           </div>
         </div>
         <div className="shell slider-controls">
