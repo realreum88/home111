@@ -310,46 +310,46 @@ const slides: { tag: string; title: React.ReactNode; desc: string; cta: string; 
     tag: 'HELLO, SAFEFIX',
     title: (
       <>
-        고장 난 하루에,
+        과잉진단 없이,
         <br />
-        <em>다시 미소를.</em>
+        <em>대표가 직접 수리.</em>
       </>
     ),
-    desc: '아이폰부터 아이패드, 맥북, 애플워치까지 외주 없이 신속하게 고쳐드려요.',
+    desc: '필요한 수리만 안내하고, 점검 후 동의하실 때만 진행해요. 아이폰·아이패드·맥북·애플워치 모두 외주 없이 고쳐요.',
     cta: '내 기기 수리 알아보기',
     to: '/services',
     chars: ['phone', 'tablet'],
-    bubble: '다시 만나서 반가워!',
+    bubble: '필요한 것만 고쳐요!',
   },
   {
     tag: 'POWER UP',
     title: (
       <>
-        배터리 걱정은 줄이고,
+        배터리 교체,
         <br />
-        <em>일상은 더 길게.</em>
+        <em>수치로 확인하고 결정.</em>
       </>
     ),
-    desc: '금방 닳는 배터리, 상태부터 꼼꼼히 확인해드려요.',
+    desc: '충전 사이클과 배터리 성능 최대치를 먼저 보여드리고, 교체 후 바뀐 수치까지 비교해드려요.',
     cta: '배터리 교체 알아보기',
     to: '/services/battery',
     chars: ['battery', 'phone'],
-    bubble: '에너지 충전 완료!',
+    bubble: '수치로 보여드려요!',
   },
   {
     tag: 'SAVE YOUR MEMORIES',
     title: (
       <>
-        소중한 기록까지,
+        침수 · 전원 안 켜짐,
         <br />
-        <em>함께 살펴볼게요.</em>
+        <em>원인부터 찾아요.</em>
       </>
     ),
-    desc: '물에 빠졌거나 전원이 안 켜져도, 증상부터 차근차근.',
+    desc: '전류 측정과 오류 기록 확인으로 원인을 먼저 찾고, 수리 범위와 비용을 안내해요.',
     cta: '데이터 상담 알아보기',
     to: '/services/data',
     chars: ['data', 'tablet'],
-    bubble: '사진은 내가 지킬게!',
+    bubble: '원인부터 찾을게요!',
   },
 ];
 
@@ -453,13 +453,17 @@ function Home() {
         </section>
 
         <section>
-          <SectionTitle badge="NEW CASES" title={<>최근 <em>수리 사례</em></>} to="/cases" label="수리 사례 전체" />
-          <PostCards posts={COLUMNS.slice(0, 6)} showService />
-        </section>
-
-        <section>
           <SectionTitle badge="REPAIR GUIDE" title={<>지금 어떤 <em>상황인가요?</em></>} to="/guide" label="상황별 안내 전체" />
           <SituationChips />
+        </section>
+
+        <ReviewSection initial={5} />
+
+        <CostBasis name="세이프픽스 수리" />
+
+        <section>
+          <SectionTitle badge="NEW CASES" title={<>최근 <em>수리 사례</em></>} to="/cases" label="수리 사례 전체" />
+          <PostCards posts={COLUMNS.slice(0, 6)} showService />
         </section>
 
         <section className="perks-wrap">
@@ -522,7 +526,6 @@ function Home() {
           <LocationCard />
         </section>
 
-        <ReviewSection initial={5} />
         <Link className="panel consult-band" to={{ pathname: '/', hash: '#request' }}>
           <div className="consult-band-chr">
             <Character kind="tablet" pose="point" mood="happy" />
@@ -557,7 +560,6 @@ function Home() {
       </div>
       <div className="shell inner-page svc-page home-extra">
         <StepCards title="세이프픽스 수리" accent="진행 과정" lead="연락부터 출고 점검까지, 이 순서로 진행해요." steps={STEPS} />
-        <CostBasis name="세이프픽스 수리" />
         <Principles />
         <ServiceArea name="세이프픽스" />
         <FaqTabs items={faqItems()} />
