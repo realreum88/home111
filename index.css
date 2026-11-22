@@ -160,7 +160,7 @@ em { font-style: normal; }
 .hero h1, .care-copy h1, .page-head h1 {
   font-size: clamp(42px, 5.6vw, 72px); line-height: 1.15; font-weight: 900; letter-spacing: -2px; margin: 22px 0 18px;
 }
-.hero h1 em, .care-copy h1 em, .page-head h1 em { color: var(--yellow); text-shadow: 5px 5px 0 var(--orange); }
+.hero h1 em, .care-copy h1 em, .page-head h1 em { color: var(--yellow); text-shadow: none; }
 .hero-copy p, .care-copy p, .page-head p { font-size: 22px; font-weight: 600; color: #e8eef6; margin: 0 0 30px; line-height: 1.55; }
 .hero-copy { animation: appear 0.5s ease-out; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 16px; }
@@ -1084,3 +1084,4 @@ input, textarea, select { max-width: 100%; min-width: 0; }
 }
 @media (max-width: 360px) { .quickbar .quick b { font-size: 16px; } .quickbar .quick { padding-left: 12px; padding-right: 12px; } }
 .hero-copy p { max-width: 30em; word-break: keep-all; }
+@media (max-width: 760px) { .hero .sp1, .hero .sp2 { display: none; } }
