@@ -44,7 +44,7 @@ import { STORE } from './store';
 const perks = [
   { Icon: Wrench, t: '대표가 직접 수리', d: '상담부터 수리까지 한 사람이 책임져요' },
   { Icon: Eye, t: '부품 직접 확인', d: '어떤 부품을 쓰는지 눈으로 보여드려요' },
-  { Icon: ShieldCheck, t: '수리 후 무상 보증', d: '아이패드 액정 1개월 · 그 밖의 수리 3개월 (고객 과실 제외)' },
+  { Icon: ShieldCheck, t: '수리 후 무상 보증', d: '액정을 제외한 수리 3개월 · 액정 수리 보증은 상담 시 안내 (고객 과실 제외)' },
   { Icon: Zap, t: '어려운 수리도 당일', d: '휨 복원·메인보드·충전단자까지' },
   { Icon: FileText, t: '여행자 보험 서류', d: '해외 파손 시 견적서·영수증·사진 준비' },
   { Icon: Truck, t: '전국 택배 · 퀵 접수', d: '멀리 계셔도 맡기실 수 있어요' },
@@ -381,7 +381,7 @@ function Home() {
                 <Check size={18} /> 당일 수리
               </li>
               <li>
-                <Check size={18} /> 무상 보증
+                <Check size={18} /> 3개월 무상 보증
               </li>
               <li>
                 <Check size={18} /> 택배 · 퀵 접수
@@ -544,7 +544,7 @@ function Home() {
           <SectionTitle badge="NOTICE" title="공지사항" to="/faq" label="자주 묻는 질문" />
           <div className="panel notice-list">
             <Link to="/faq" className="notice-row">
-              <span>보증</span>무상 보증: 아이패드 액정 1개월, 그 밖의 수리 3개월 (고객 과실 제외)
+              <span>보증</span>무상 보증: 액정을 제외한 수리 3개월, 액정 수리 보증은 상담 시 안내 (고객 과실 제외)
               <ChevronRight size={20} />
             </Link>
             <Link to="/locations" className="notice-row">
@@ -736,9 +736,10 @@ const svcById = (id?: string) => SVCS.find((s) => s.id === id);
 const DEVICE_LABEL: Record<string, string> = { iphone: '아이폰', ipad: '아이패드', macbook: '맥북', watch: '애플워치' };
 const DEVICE_KIND: Record<string, CharKind> = { iphone: 'phone', ipad: 'tablet', macbook: 'laptop', watch: 'watch' };
 const dot = (d: string) => d.replace(/-/g, '.');
+const isScreenSvc = (s: Svc) => s.id.endsWith('-screen');
 const warrantyOf = (s: Svc) => s.warranty || '3개월';
 const svcTitle = (s: Svc) => `${s.name} 상도동 중앙대·숭실대 | 세이프픽스`;
-const svcDesc = (s: Svc) => `${s.name}(${s.short}), 외주 없이 대표가 직접 진단하고 고쳐요. 중앙대·숭실대 도보 10분, 무료 주차, 수리 후 ${warrantyOf(s)} 무상 보증.`;
+const svcDesc = (s: Svc) => `${s.name}(${s.short}), 외주 없이 대표가 직접 진단하고 고쳐요. 중앙대·숭실대 도보 10분, 무료 주차, ${isScreenSvc(s) ? '보증 기간은 상담 시 안내' : `수리 후 ${warrantyOf(s)} 무상 보증`}.`;
 
 // 지역 목록 페이지 (/services/<서비스>/<지역>)
 function areaMeta(service: string, area: string) {
@@ -851,7 +852,7 @@ const STEPS: [string, string][] = [
 function svcFaq(s: Svc): [string, string][] {
   return [
     [`${s.name} 비용은 어떻게 정해지나요?`, '모델과 증상에 따라 작업 범위가 달라져요. 기기 상태를 먼저 확인한 뒤 비용과 소요 시간을 안내하고, 동의하신 경우에만 수리해요.'],
-    [`${s.name} 후 보증이 있나요?`, `네, 수리 후 ${warrantyOf(s)} 동안 같은 증상이 다시 나타나면 무상으로 봐드려요. 떨어뜨리거나 물에 빠뜨린 경우처럼 고객 과실은 제외돼요.`],
+    [`${s.name} 후 보증이 있나요?`, isScreenSvc(s) ? '액정 수리 보증은 기종과 부품에 따라 달라서 상담 때 안내드려요. 액정을 제외한 다른 수리는 3개월 동안 같은 증상이 다시 나타나면 무상으로 봐드려요(고객 과실 제외).' : `네, 수리 후 ${warrantyOf(s)} 동안 같은 증상이 다시 나타나면 무상으로 봐드려요. 떨어뜨리거나 물에 빠뜨린 경우처럼 고객 과실은 제외돼요.`],
     ['어디에 있나요? 주차되나요?', `${STORE.address} ${STORE.addressDetail}에 있어요. 중앙대·숭실대에서 걸어서 약 10분이고, 무료 주차가 가능해요.`],
     ['멀리 있어도 맡길 수 있나요?', '네, 전국 택배 수리가 가능해요. 점검 후 비용을 안내하고 동의하시면 수리해서 우체국 택배로 보내드려요. 보통 1~2일 걸려요.'],
   ];
@@ -885,7 +886,7 @@ function faqItems(s?: Svc): Faq[] {
     { cat: '수리 과정', q: '필요 없는 수리까지 권하지 않나요?', a: '과잉진단 없이 꼭 필요한 수리만 안내해요. 점검 결과와 비용을 먼저 설명드리고, 동의하신 경우에만 수리해요.' },
     { cat: '수리 과정', q: '외주로 보내지 않나요?', a: '외주 없이 대표가 상담부터 수리, 출고 점검까지 직접 해요.' },
     ...(s?.points?.length ? [{ cat: '수리 과정', q: `${s.name}, 수리할 때 무엇을 확인하나요?`, a: s.points.join(' ') }] : []),
-    { cat: '보증 & 사후 관리', q: `${name} 후 보증이 있나요?`, a: s ? `네, 수리 후 ${w} 동안 같은 증상이 다시 나타나면 무상으로 봐드려요. 떨어뜨리거나 물에 빠뜨린 경우처럼 고객 과실은 제외돼요.` : '수리 후 같은 증상이 다시 나타나면 무상으로 봐드려요. 아이패드 액정 교체는 1개월, 그 밖의 수리는 3개월이에요(고객 과실 제외).' },
+    { cat: '보증 & 사후 관리', q: `${name} 후 보증이 있나요?`, a: s ? (isScreenSvc(s) ? '액정 수리 보증은 기종과 부품에 따라 달라서 상담 때 안내드려요. 액정을 제외한 다른 수리는 3개월 동안 같은 증상이 다시 나타나면 무상으로 봐드려요(고객 과실 제외).' : `네, 수리 후 ${w} 동안 같은 증상이 다시 나타나면 무상으로 봐드려요. 떨어뜨리거나 물에 빠뜨린 경우처럼 고객 과실은 제외돼요.`) : '액정을 제외한 수리는 3개월 동안 같은 증상이 다시 나타나면 무상으로 봐드려요. 액정 수리 보증은 기종과 부품에 따라 달라서 상담 때 안내드려요. 떨어뜨리거나 물에 빠뜨린 경우처럼 고객 과실은 제외돼요.' },
     { cat: '보증 & 사후 관리', q: '방문 전에 무엇을 준비하나요?', a: '기기 모델명, 증상, 이전 수리 이력을 알려주세요. 가능하다면 중요한 데이터를 미리 백업해주세요.' },
     { cat: '방문 & 택배', q: '중앙대·숭실대에서 가까운가요?', a: '네, 중앙대와 숭실대 모두 걸어서 약 10분 거리예요. 방문 전에 연락 주시면 기다리지 않으셔도 돼요.' },
     { cat: '방문 & 택배', q: '어디에 있나요? 주차되나요?', a: `${STORE.address} ${STORE.addressDetail}에 있어요. 중앙대·숭실대에서 걸어서 약 10분이고, 무료 주차가 가능해요.` },
@@ -991,7 +992,7 @@ function Principles({ warranty }: { warranty?: string }) {
   const items: [React.ReactNode, string, string[]][] = [
     [<Wrench size={30} />, '대표 직접 수리', ['외주로 기기를 넘기는 일은 없어요.', '상담부터 수리, 출고 점검까지 대표가 직접 해요.']],
     [<FileText size={30} />, '동의한 수리만', ['과잉진단 없이 꼭 필요한 수리만 안내해요.', '점검 후 비용을 먼저 말씀드리고, 동의하신 경우에만 수리해요.']],
-    [<ShieldCheck size={30} />, '수리 후 무상 보증', [warranty ? `수리 후 ${warranty} 동안 같은 증상이 생기면 무상으로 봐드려요.` : '아이패드 액정 1개월, 그 밖의 수리 3개월 무상 보증.', '고객 과실(낙하·침수)은 제외돼요.']],
+    [<ShieldCheck size={30} />, '수리 후 무상 보증', [warranty ? `수리 후 ${warranty} 동안 같은 증상이 생기면 무상으로 봐드려요.` : '액정을 제외한 수리 3개월 무상 보증, 액정 수리 보증은 상담 시 안내해요.', '고객 과실(낙하·침수)은 제외돼요.']],
   ];
   return (
     <section className="full" id="promise">
@@ -1471,7 +1472,7 @@ function ServicePage({ svc }: { svc: Svc }) {
 
         <CostBasis name={svc.name} />
 
-        <Principles warranty={warrantyOf(svc)} />
+        <Principles warranty={isScreenSvc(svc) ? undefined : warrantyOf(svc)} />
 
         <FaqTabs items={faqItems(svc)} />
 
@@ -1833,7 +1834,7 @@ function About() {
             <div className="panel promise">
               <ShieldCheck size={26} />
               <h3>수리 후 무상 보증</h3>
-              <p>아이패드 액정 1개월, 그 밖의 수리 3개월 (고객 과실 제외)</p>
+              <p>액정을 제외한 수리 3개월, 액정 수리 보증은 상담 시 안내 (고객 과실 제외)</p>
             </div>
           </div>
         </section>
