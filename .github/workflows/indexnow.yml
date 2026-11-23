@@ -1,0 +1,38 @@
+name: 색인 요청 (IndexNow)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'src/**'
+      - 'App.tsx'
+      - 'index.html'
+      - 'seo.json'
+      - 'services.json'
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: '제출할 주소(공백으로 구분). 비우면 사이트맵 전체'
+        required: false
+        default: ''
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 바뀐 글 제출
+        if: github.event_name == 'push'
+        run: node scripts/indexnow.mjs --diff ${{ github.event.before }} ${{ github.sha }}
+      - name: 직접 제출
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          URLS: ${{ github.event.inputs.urls }}
+        run: |
+          if [ -z "$URLS" ]; then node scripts/indexnow.mjs --all; else node scripts/indexnow.mjs $URLS; fi
