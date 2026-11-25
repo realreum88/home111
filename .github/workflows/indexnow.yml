@@ -17,6 +17,10 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: read
+  statuses: read
+
 jobs:
   indexnow:
     runs-on: ubuntu-latest
@@ -27,6 +31,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Vercel 배포 완료 대기
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            s=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/status --jq .state)
+            echo "배포 상태: $s"
+            [ "$s" = success ] && exit 0
+            [ "$s" = failure ] || [ "$s" = error ] && { echo "배포 실패 — 제출하지 않아요"; exit 1; }
+            sleep 15
+          done
+          echo "15분 안에 배포가 끝나지 않았어요"; exit 1
       - name: 바뀐 글 제출
         if: github.event_name == 'push'
         run: node scripts/indexnow.mjs --diff ${{ github.event.before }} ${{ github.sha }}

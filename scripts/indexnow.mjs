@@ -16,7 +16,7 @@ const SITE = 'https://www.safefix.co.kr';
 const HOST = 'www.safefix.co.kr';
 const KEY = readdirSync(join(root, 'public')).find((f) => /^[0-9a-f]{32}\.txt$/.test(f))?.replace('.txt', '');
 if (!KEY) throw new Error('public/ 에 IndexNow 키 파일이 없어요');
-const ENDPOINTS = ['https://searchadvisor.naver.com/indexnow', 'https://api.indexnow.org/indexnow'];
+const ENDPOINTS = ['https://searchadvisor.naver.com/indexnow', 'https://www.bing.com/indexnow', 'https://api.indexnow.org/indexnow'];
 
 const enc = (p) => SITE + encodeURI(decodeURI(p));
 const front = (file) => {
@@ -113,7 +113,7 @@ const result = live.length ? await submit(live) : [];
 const lines = [
   '## 색인 요청 결과',
   '',
-  `IndexNow(네이버·빙) 응답: ${result.join(', ') || '제출 안 함'} (200·202면 정상)`,
+  `IndexNow 응답(네이버·빙·공용): ${result.join(', ') || '제출 안 함'} (200·202면 정상)`,
   '',
   '### 제출한 주소 — 구글 서치콘솔 "URL 검사"에도 넣어주세요',
   ...live.map((p) => `- ${SITE}${decodeURI(p)}`),
