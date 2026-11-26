@@ -1571,5 +1571,18 @@
   "tistory": "",
   "indexed": false,
   "blogCase": false
+ },
+ {
+  "id": "q122",
+  "service": "ipad-charging-port",
+  "question": "아이패드 충전단자에 충전기 부속이 박혔어요. 단자를 교체해야 하나요?",
+  "intent": "진단",
+  "priority": "high",
+  "status": "todo",
+  "post": "",
+  "naver": "",
+  "tistory": "",
+  "indexed": false,
+  "blogCase": false
  }
 ]
