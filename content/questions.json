@@ -1558,5 +1558,18 @@
   "tistory": "",
   "indexed": false,
   "blogCase": false
+ },
+ {
+  "id": "q121",
+  "service": "ipad-mainboard",
+  "question": "아이패드가 무한 재부팅돼요. 센서를 빼봐도 계속 꺼지면 메인보드 문제인가요?",
+  "intent": "진단",
+  "priority": "high",
+  "status": "todo",
+  "post": "",
+  "naver": "",
+  "tistory": "",
+  "indexed": false,
+  "blogCase": false
  }
 ]
