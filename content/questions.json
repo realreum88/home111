@@ -1575,11 +1575,11 @@
  {
   "id": "q122",
   "service": "ipad-charging-port",
-  "question": "아이패드 충전단자에 이물질이 박혔어요. 단자를 교체해야 하나요?",
+  "question": "아이패드 충전단자에 충전기 핀이 박혔어요. 단자를 교체해야 하나요?",
   "intent": "진단",
   "priority": "high",
   "status": "published",
-  "post": "/services/ipad-charging-port/아이패드-충전단자-이물질-박힘-교체-없이-제거-9세대-후기",
+  "post": "/services/ipad-charging-port/아이패드-충전단자-충전기-핀-박힘-교체-없이-제거-9세대-후기",
   "naver": "",
   "tistory": "",
   "indexed": false,
