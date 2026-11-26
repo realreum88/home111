@@ -1584,5 +1584,18 @@
   "tistory": "",
   "indexed": false,
   "blogCase": false
+ },
+ {
+  "id": "q123",
+  "service": "watch-crown",
+  "question": "애플워치 크라운이 고장났어요. 크라운만 따로 교체할 수 있나요?",
+  "intent": "비용",
+  "priority": "high",
+  "status": "todo",
+  "post": "",
+  "naver": "",
+  "tistory": "",
+  "indexed": false,
+  "blogCase": false
  }
 ]
